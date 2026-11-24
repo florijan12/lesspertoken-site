@@ -1,0 +1,41 @@
+name: Refresh prices and deploy
+
+on:
+  schedule:
+    - cron: "17 4 * * *"   # every day at 04:17 UTC
+  workflow_dispatch:        # "Run workflow" button in the Actions tab
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install jinja2
+      - name: Refresh prices
+        if: github.event_name != 'push'
+        env:
+          SAYGM_API_KEY: ${{ secrets.SAYGM_API_KEY }}
+        run: python update_prices.py
+      - name: Save updated prices
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "price-bot"
+          git config user.email "price-bot@users.noreply.github.com"
+          git add data/models.json
+          git diff --cached --quiet || git commit -m "Refresh prices $(date -u +%F)"
+          git push
+      - run: python build.py
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
