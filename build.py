@@ -1,0 +1,343 @@
+#!/usr/bin/env python3
+"""Build the static site from data/ and templates/ into dist/.
+
+Usage:  python build.py            # writes dist/
+        python build.py --out DIR  # writes somewhere else
+"""
+import argparse, base64, datetime as dt, html, json, pathlib, shutil, statistics
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+ROOT = pathlib.Path(__file__).parent
+GROUP_ORDER = ["Anthropic", "OpenAI", "Google", "Open models"]
+MIX_IN, MIX_OUT = 10, 2  # millions of tokens, the 5:1 mix used for "You save"
+
+
+def money(x):
+    """$2.11, $0.052, $0.001; 'Not published' for None."""
+    if x is None:
+        return "Not published"
+    from decimal import Decimal, ROUND_HALF_UP
+    q = lambda v, places: Decimal(repr(v)).quantize(Decimal(places), rounding=ROUND_HALF_UP)
+    if x >= 0.1:
+        return f"${q(x, '0.01'):,}"
+    s = str(q(x, "0.001")).rstrip("0")
+    if len(s.split(".")[1]) < 2:
+        s = str(q(x, "0.01"))
+    return "$" + s
+
+
+def human_date(iso):
+    d = dt.date.fromisoformat(iso)
+    return f"{d.day} {d.strftime('%B %Y')}"
+
+
+def enrich(m, fee):
+    o, s, l = m["openrouter"], m["saygm"], m["list"]
+    eff = lambda v: None if v is None else v * (1 + fee)
+    or_blend = (MIX_IN * o["in"] + MIX_OUT * o["out"]) * (1 + fee)
+    sg_blend = MIX_IN * s["in"] + MIX_OUT * s["out"]
+    m["save"] = round((1 - sg_blend / or_blend) * 100)
+    m["or_blend"], m["sg_blend"] = round(or_blend, 4), round(sg_blend, 4)
+    m["f"] = {
+        "list_in": money(l["in"]), "list_out": money(l["out"]), "list_cache": money(l.get("cache")),
+        "or_in": money(eff(o["in"])), "or_out": money(eff(o["out"])), "or_cache": money(eff(o.get("cache"))),
+        "sg_in": money(s["in"]), "sg_out": money(s["out"]), "sg_cache": money(s.get("cache")),
+    }
+    m.setdefault("id_verified", False)
+    return m
+
+
+def jsonld(graph):
+    return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False).replace("</", "<\\/")
+
+
+def faq_ld(faq):
+    return {"@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": q["q"], "acceptedAnswer": {"@type": "Answer", "text": q["a"]}} for q in faq]}
+
+
+def faq_item(q, a, a_html=None):
+    return {"q": q, "a": a, "a_html": a_html or html.escape(a)}
+
+
+def author_ld(site):
+    a = site["author"]
+    if a.get("name"):
+        p = {"@type": "Person", "name": a["name"]}
+        if a.get("url"):
+            p["url"] = a["url"]
+        return p
+    return {"@type": "Organization", "name": site["brand"]}
+
+
+def bench_rows(bench, models):
+    if not bench:
+        return None, []
+    by = bench.get("results", {})
+    rows = []
+    fmt = lambda g: {
+        "ttft": "–" if g.get("ttft_median_s") is None else f"{g['ttft_median_s']:.2f} s",
+        "success": "–" if g.get("success_rate") is None else f"{round(g['success_rate'] * 100)}%",
+        "cost100": "–" if g.get("cost_per_request_usd") is None else money(g["cost_per_request_usd"] * 100),
+    }
+    for m in models:
+        r = by.get(m["slug"])
+        if r and "saygm" in r and "openrouter" in r:
+            rows.append({"slug": m["slug"], "name": m["name"], "saygm": fmt(r["saygm"]), "openrouter": fmt(r["openrouter"])})
+    info = {"n": bench.get("n"), "date_human": human_date(bench["date"]), "location": bench.get("location", "")}
+    return (info if rows else None), rows
+
+
+def alternatives(alt, by_slug, fee):
+    """Rows for the gateway price comparison: cost of a fixed workload on each gateway."""
+    if not alt:
+        return None
+    tm, share = alt["workload"]["tokens_m"], alt["workload"]["input_share"]
+    cols = [by_slug[s] for s in alt["models"] if s in by_slug]
+    rows, notes = [], []
+    for g in alt["gateways"]:
+        cells = []
+        for m in cols:
+            if g.get("source") == "saygm":
+                p = (m["saygm"]["in"], m["saygm"]["out"])
+            elif g.get("source") == "openrouter":
+                p = (m["openrouter"]["in"] * (1 + fee), m["openrouter"]["out"] * (1 + fee))
+            else:
+                p = g["prices"].get(m["slug"], "Not published")
+            if isinstance(p, str):
+                cells.append({"text": p, "cost": None})
+                continue
+            cost = tm * (share * p[0] + (1 - share) * p[1])
+            note = g.get("notes", {}).get(m["slug"])
+            mark = ""
+            if note:
+                mark = "*" * (len(notes) + 1)
+                notes.append(f"{mark}{g['name']}, {m['name']}: {note}.")
+            cells.append({"cost": cost, "cost_f": f"${round(cost):,}", "price_f": f"{money(p[0])} / {money(p[1])}", "mark": mark})
+        rows.append({"name": g["name"], "cells": cells, "pricing": g["pricing"], "catalog": g["catalog"], "privacy": g["privacy"], "best": g["best"]})
+    for j in range(len(cols)):
+        vals = [r["cells"][j]["cost"] for r in rows if r["cells"][j]["cost"] is not None]
+        for r in rows:
+            r["cells"][j]["best"] = r["cells"][j]["cost"] is not None and r["cells"][j]["cost"] == min(vals)
+    via = [g["name"] for g in alt["gateways"] if g.get("via_source")]
+    own = [{"name": g["name"], **g["own_source"], "date": human_date(g["own_source"]["checked"])} for g in alt["gateways"] if g.get("own_source")]
+    return {"cols": cols, "rows": rows, "notes": notes, "source": alt["source"], "via": via, "own": own,
+            "source_date": human_date(alt["source"]["checked"]),
+            "workload": f"{tm}M tokens, {round(share * 100)}% input and {round((1 - share) * 100)}% output"}
+
+
+def token_examples(by_slug, fee):
+    """Worked examples for the token-saving post, computed from live prices so they never go stale."""
+    s, h = by_slug["claude-sonnet-5-5"], by_slug["claude-haiku-5-5"]
+    L, G, O = s["list"], s["saygm"], s["openrouter"]
+    pct = lambda new, old: round((1 - new / old) * 100)
+
+    # 1. Coding agent: 50M input, 2M output a month, 85% of input served from cache
+    ti, to, hit = 50, 2, 0.85
+    no_cache = ti * L["in"] + to * L["out"]
+    cached = ti * (1 - hit) * L["in"] + ti * hit * L["cache"] + to * L["out"]
+    cached_or = (ti * (1 - hit) * O["in"] + ti * hit * O["cache"] + to * O["out"]) * (1 + fee)
+    cached_sg = ti * (1 - hit) * G["in"] + ti * hit * G["cache"] + to * G["out"]
+    agent = {"no_cache": money(no_cache), "cached": money(cached), "cached_or": money(cached_or),
+             "cached_sg": money(cached_sg), "cache_pct": pct(cached, no_cache), "total_pct": pct(cached_sg, no_cache),
+             "cache_ratio": round(L["cache"] / L["in"] * 100), "sg_vs_or": pct(cached_sg, cached_or)}
+
+    # 2. Routing: support bot, 5M input + 1M output a month
+    ri, ro = 5, 1
+    son_cost, hai_cost = ri * L["in"] + ro * L["out"], ri * h["list"]["in"] + ro * h["list"]["out"]
+    mixed = 0.8 * hai_cost + 0.2 * son_cost
+    route = {"sonnet": money(son_cost), "haiku": money(hai_cost), "mixed": money(mixed), "mixed_pct": pct(mixed, son_cost),
+             "ratio": round(L["in"] / h["list"]["in"])}
+
+    # 3. Output length: 1,000 requests a day for 30 days, 800 vs 300 output tokens each
+    out_long, out_short = 30_000 * 800 / 1e6, 30_000 * 300 / 1e6
+    output = {"long_m": f"{out_long:g}", "short_m": f"{out_short:g}", "long": money(out_long * L["out"]),
+              "short": money(out_short * L["out"]), "ratio": round(L["out"] / L["in"])}
+
+    # 4. Batch: nightly job, 20M input + 5M output a month, 50% batch discount
+    bi, bo = 20, 5
+    live = bi * L["in"] + bo * L["out"]
+    batch = {"live": money(live), "batch": money(live / 2)}
+
+    # 5. Context: 20-turn chat, 500 tokens per turn. Full history vs last 4 turns + 300-token summary
+    turn, n = 500, 20
+    full = sum(turn * k for k in range(1, n + 1))
+    trimmed = sum(turn * min(k, 4) + (300 if k > 4 else 0) for k in range(1, n + 1))
+    context = {"full": f"{full:,}", "trimmed": f"{trimmed:,}", "pct": pct(trimmed, full), "last": f"{turn * n:,}"}
+
+    return {"model": s["name"], "haiku": h["name"], "L": s["f"], "H": h["f"], "agent": agent, "route": route,
+            "output": output, "batch": batch, "context": context, "save": s["save"]}
+
+
+POSTS = [
+    {"slug": "token-saving-basics", "template": "posts/token-saving-basics.html", "part": 1,
+     "date": "2026-11-23",
+     "title": "How to cut your LLM API bill: 6 token-saving techniques with examples",
+     "short": "6 ways to cut your LLM API bill",
+     "description": "Prompt caching, model routing, shorter outputs, batch jobs, trimmed context and the right gateway: six ways to spend fewer dollars per token, with worked examples."},
+]
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default=str(ROOT / "dist"))
+    args = ap.parse_args()
+    out = pathlib.Path(args.out)
+
+    data = json.loads((ROOT / "data/models.json").read_text())
+    site = json.loads((ROOT / "data/site.json").read_text())
+    bench_path = ROOT / "data/bench.json"
+    bench_raw = json.loads(bench_path.read_text()) if bench_path.exists() else None
+    alt_path = ROOT / "data/alternatives.json"
+    alt_raw = json.loads(alt_path.read_text()) if alt_path.exists() else None
+    if bench_raw and not site.get("test_location"):
+        site["test_location"] = bench_raw.get("location", "")
+
+    fee = data["openrouter_card_fee"]
+    models = [enrich(m, fee) for m in data["models"]]
+    by_slug = {m["slug"]: m for m in models}
+    groups = [{"name": g, "models": [m for m in models if m["maker"] == g]} for g in GROUP_ORDER]
+    groups = [g for g in groups if g["models"]]
+    max_save = max(m["save"] for m in models)
+    domain = site["domain"].rstrip("/")
+    base = ""
+    checked_human = human_date(data["checked"])
+    bench, brows = bench_rows(bench_raw, models)
+    alt = alternatives(alt_raw, by_slug, fee)
+
+    fav = (ROOT / "static/favicon.svg").read_text().strip()
+    common = dict(
+        site=site, data=data, base=base, checked_human=checked_human, year=data["checked"][:4],
+        favicon_data="data:image/svg+xml;base64," + base64.b64encode(fav.encode()).decode(),
+        mark_svg=fav.replace("<svg ", '<svg class="mark" aria-hidden="true" ', 1),
+        models=models, bench=bench, calc=True,
+    )
+
+    def js_data(start):
+        return json.dumps({"fee": fee, "base": base, "start": start, "models": [
+            {"slug": m["slug"], "n": m["name"], "c": bool(m.get("featured")),
+             "si": m["saygm"]["in"], "so": m["saygm"]["out"], "sc": m["saygm"].get("cache"),
+             "oi": m["openrouter"]["in"], "oo": m["openrouter"]["out"], "oc": m["openrouter"].get("cache")}
+            for m in models]}).replace("</", "<\\/")
+
+    env = Environment(loader=FileSystemLoader(str(ROOT / "templates")), autoescape=select_autoescape(["html"]))
+    if out.exists():
+        shutil.rmtree(out)
+    out.mkdir(parents=True)
+
+    # ---- main comparison page ----
+    son = by_slug.get("claude-sonnet-5-5")
+    newest = [by_slug[s]["save"] for s in ("gpt-6-2-sol", "gemini-4-neon") if s in by_slug]
+    cheaper = f"Yes, for every model we track. Claude is about {son['save']}% cheaper" if son else "Yes, for every model we track"
+    if newest:
+        cheaper += f", the newest GPT-6.2 and Gemini 4 Neon about {min(newest)}–{max(newest)}%"
+    cheaper += f", and popular open models up to {max_save}%."
+    faq = [
+        faq_item("Is SayGM cheaper than OpenRouter?", cheaper),
+        faq_item("Is SayGM private?",
+                 "SayGM itself can't read your prompts, and prompts are never logged. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential -tee models keep prompts sealed end to end.",
+                 "SayGM itself can't read your prompts, and prompts are never logged. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential <code>-tee</code> models keep prompts sealed end to end."),
+        faq_item("What are the best OpenRouter alternatives?",
+                 "It depends on what you need. SayGM for the lowest prices on Claude and many open models, OpenRouter itself for the widest catalogue, Requesty for EU data residency, Venice for privacy-first use with end-to-end encrypted open models, and DeepInfra or Together AI for open models at volume or fine-tuning."),
+        faq_item("Does SayGM have a free tier?", "No. There is also no subscription and no top-up fee. You pay per token."),
+        faq_item("Does SayGM work with my existing code?",
+                 "Yes. Point your OpenAI, Anthropic or Gemini SDK at https://api.saygm.com/v1 and use a SayGM key.",
+                 "Yes. Point your OpenAI, Anthropic or Gemini SDK at <code>https://api.saygm.com/v1</code> and use a SayGM key."),
+        faq_item("Do you earn money from this page?", "Yes. SayGM rewards us when someone signs up through our links and adds credit. Your price is the same either way."),
+    ]
+    url = domain + "/"
+    title_h = f"SayGM vs OpenRouter: same models, up to {max_save}% cheaper"
+    page = {
+        "title": "SayGM vs OpenRouter (2026): Cheaper OpenRouter Alternative",
+        "description": f"SayGM vs OpenRouter prices for Claude, GPT-6.2, Gemini 4 Neon, DeepSeek and more. Claude costs about {son['save'] if son else 51}% less on SayGM after OpenRouter's 5.5% fee.",
+        "og_title": title_h, "url": url,
+        "jsonld": jsonld([
+            {"@type": "Article", "headline": title_h, "dateModified": data["checked"], "datePublished": "2026-11-22",
+             "author": author_ld(site), "publisher": {"@type": "Organization", "name": site["brand"], "logo": {"@type": "ImageObject", "url": domain + "/logo.svg"}},
+             "image": domain + "/og.png", "mainEntityOfPage": url},
+            faq_ld(faq)]),
+    }
+    noted = [m for m in models if m.get("note")]
+    (out / "index.html").write_text(env.get_template("compare.html").render(
+        **common, page=page, groups=groups, max_save=max_save, faq=faq, noted=noted,
+        bench_rows=brows, alt=alt, js_data=js_data("claude-sonnet-5-5")))
+
+    # ---- one page per model ----
+    for m in models:
+        o, s = m["or_blend"], m["sg_blend"]
+        tee_txt = (f"The standard route is sealed through SayGM's gateway, then the serving provider reads the prompt. A confidential -tee version of {m['name']} keeps prompts sealed end to end, at a smaller discount."
+                   if m.get("tee") else
+                   f"SayGM's gateway can't read your prompt. The provider that runs {m['name']} processes it under its own API terms, as with any gateway, and optional redaction strips personal data and secrets first.")
+        below_list = ""
+        if not m.get("or_estimate"):
+            lb = MIX_IN * m["list"]["in"] + MIX_OUT * m["list"]["out"]
+            below_list = f" and {round((1 - s / lb) * 100)}% below {m['maker']}'s list price"
+        mfaq = [
+            faq_item(f"What is the cheapest way to use {m['name']} through an API?",
+                     f"Of the options we compare, SayGM: {m['f']['sg_in']} input and {m['f']['sg_out']} output per million tokens. That is {m['save']}% less than OpenRouter after its card fee{below_list}."),
+            faq_item(f"How much would I save on {m['name']} at 10M input and 2M output tokens a month?",
+                     f"About {money(o - s)} a month: {money(o)} on OpenRouter against {money(s)} on SayGM."),
+            faq_item(f"Is {m['name']} on SayGM private?", tee_txt),
+            faq_item("Do you earn money from this page?", "Yes. SayGM rewards us when someone signs up through our links and adds credit. Your price is the same either way."),
+        ]
+        murl = f"{domain}/models/{m['slug']}/"
+        mtitle = f"{m['name']} API: {m['save']}% cheaper on SayGM than OpenRouter"
+        mpage = {
+            "title": f"Cheapest {m['name']} API (2026): SayGM vs OpenRouter Prices",
+            "description": f"{m['name']} costs {m['f']['sg_in']} / {m['f']['sg_out']} per 1M tokens on SayGM vs {m['f']['or_in']} / {m['f']['or_out']} on OpenRouter with fees: {m['save']}% less.",
+            "og_title": mtitle, "url": murl,
+            "jsonld": jsonld([
+                {"@type": "Article", "headline": mtitle, "dateModified": data["checked"], "author": author_ld(site),
+                 "publisher": {"@type": "Organization", "name": site["brand"]}, "image": domain + "/og.png", "mainEntityOfPage": murl},
+                {"@type": "BreadcrumbList", "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "SayGM vs OpenRouter", "item": domain + "/"},
+                    {"@type": "ListItem", "position": 2, "name": m["name"]}]},
+                faq_ld(mfaq)]),
+        }
+        brow = next((r for r in brows if r["slug"] == m["slug"]), None)
+        d = out / "models" / m["slug"]
+        d.mkdir(parents=True)
+        (d / "index.html").write_text(env.get_template("model.html").render(
+            **common, page=mpage, m=m, faq=mfaq, bench_row=brow, js_data=js_data(m["slug"])))
+
+    # ---- blog ----
+    ex = token_examples(by_slug, fee)
+    blog_common = {k: v for k, v in common.items() if k != "calc"}
+    for p in POSTS:
+        p["url"] = f"{domain}/blog/{p['slug']}/"
+        p["date_human"] = human_date(p["date"])
+    for p in POSTS:
+        ppage = {
+            "title": p["title"], "description": p["description"], "og_title": p["title"], "url": p["url"],
+            "jsonld": jsonld([
+                {"@type": "BlogPosting", "headline": p["title"], "datePublished": p["date"], "dateModified": data["checked"],
+                 "author": author_ld(site), "publisher": {"@type": "Organization", "name": site["brand"]},
+                 "image": domain + "/og.png", "mainEntityOfPage": p["url"]},
+                {"@type": "BreadcrumbList", "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Blog", "item": domain + "/blog/"},
+                    {"@type": "ListItem", "position": 2, "name": p["short"]}]}]),
+        }
+        d = out / "blog" / p["slug"]
+        d.mkdir(parents=True)
+        (d / "index.html").write_text(env.get_template(p["template"]).render(
+            **blog_common, calc=False, page=ppage, post=p, posts=POSTS, ex=ex))
+    bpage = {"title": f"Token-saving blog | {site['brand']}",
+             "description": "Practical ways to cut LLM API costs: caching, routing, batching and pricing, with worked examples.",
+             "og_title": f"{site['brand']} blog: spend less per token", "url": domain + "/blog/",
+             "jsonld": jsonld([{"@type": "Blog", "name": f"{site['brand']} blog", "url": domain + "/blog/"}])}
+    (out / "blog" / "index.html").write_text(env.get_template("blog.html").render(
+        **blog_common, calc=False, page=bpage, posts=POSTS))
+
+    # ---- sitemap, robots, static files ----
+    urls = ([domain + "/"] + [f"{domain}/models/{m['slug']}/" for m in models]
+            + [domain + "/blog/"] + [p["url"] for p in POSTS])
+    (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        "".join(f"  <url><loc>{u}</loc><lastmod>{data['checked']}</lastmod></url>\n" for u in urls) + "</urlset>\n")
+    (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {domain}/sitemap.xml\n")
+    for f in (ROOT / "static").iterdir():
+        shutil.copy(f, out / f.name)
+    print(f"Built {len(urls)} pages into {out}")
+
+
+if __name__ == "__main__":
+    main()
