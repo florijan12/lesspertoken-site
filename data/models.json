@@ -1,5 +1,5 @@
 {
-  "checked": "2026-11-22",
+  "checked": "2026-11-24",
   "openrouter_card_fee": 0.055,
   "note": "Prices are USD per 1M tokens. list = model maker's list price. openrouter = OpenRouter's per-token price before its credit fee. cache = cached input (cache read). null = not published. update_prices.py refreshes saygm and openrouter blocks; check the *_id fields with `python update_prices.py --list` before the first run.",
   "models": [
@@ -25,7 +25,8 @@
         "out": 40.0,
         "cache": 0.2
       },
-      "id_verified": false
+      "id_verified": false,
+      "or_estimate": false
     },
     {
       "slug": "claude-opus-5-5",
@@ -49,7 +50,8 @@
         "out": 20.0,
         "cache": 0.2
       },
-      "id_verified": false
+      "id_verified": false,
+      "or_estimate": false
     },
     {
       "slug": "claude-sonnet-5-5",
@@ -73,7 +75,8 @@
         "out": 10.0,
         "cache": 0.1
       },
-      "id_verified": false
+      "id_verified": false,
+      "or_estimate": false
     },
     {
       "slug": "claude-haiku-5-5",
@@ -94,9 +97,10 @@
       "openrouter": {
         "in": 0.1,
         "out": 0.5,
-        "cache": null
+        "cache": 0.01
       },
-      "id_verified": false
+      "id_verified": false,
+      "or_estimate": false
     },
     {
       "slug": "gpt-6-2-astra",
@@ -118,9 +122,11 @@
       "openrouter": {
         "in": 8.0,
         "out": 40.0,
-        "cache": null
+        "cache": 0.4
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gpt-6-2-sol",
@@ -142,9 +148,11 @@
       "openrouter": {
         "in": 2.0,
         "out": 10.0,
-        "cache": null
+        "cache": 0.1
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-4-neon",
@@ -169,7 +177,9 @@
         "out": 15.0,
         "cache": 0.15
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-4-argon",
@@ -191,9 +201,11 @@
       "openrouter": {
         "in": 2.0,
         "out": 10.0,
-        "cache": null
+        "cache": 0.1
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-3-8-flash",
@@ -212,11 +224,13 @@
         "cache": null
       },
       "openrouter": {
-        "in": 0.75,
-        "out": 3.75,
-        "cache": null
+        "in": 0.825,
+        "out": 4.125,
+        "cache": 0.0825
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "deepseek-v4-1-flash-1017",
@@ -241,8 +255,9 @@
         "out": 1.2,
         "cache": 0.006
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     },
     {
       "slug": "deepseek-v4-1-flash",
@@ -267,7 +282,8 @@
         "out": 1.2,
         "cache": 0.006
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "open"
     },
     {
       "slug": "qwen3-8-27b",
@@ -288,11 +304,12 @@
       },
       "openrouter": {
         "in": 0.5,
-        "out": 3.0,
-        "cache": null
+        "out": 1.5,
+        "cache": 0.0175
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     },
     {
       "slug": "kimi-k3",
@@ -313,11 +330,12 @@
       },
       "openrouter": {
         "in": 3.0,
-        "out": 15.0,
-        "cache": null
+        "out": 16.0,
+        "cache": 0.182
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     },
     {
       "slug": "glm-5-3-flash",
@@ -339,10 +357,11 @@
       "openrouter": {
         "in": 0.15,
         "out": 0.5,
-        "cache": null
+        "cache": 0.03
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     }
   ]
 }
