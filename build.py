@@ -37,6 +37,9 @@ def enrich(m, fee):
     or_blend = (MIX_IN * o["in"] + MIX_OUT * o["out"]) * (1 + fee)
     sg_blend = MIX_IN * s["in"] + MIX_OUT * s["out"]
     m["save"] = round((1 - sg_blend / or_blend) * 100)
+    # Honest labels when OpenRouter's cheapest route beats SayGM
+    m["cheaper"] = m["save"] > 0
+    m["save_badge"] = f"−{m['save']}%" if m["save"] > 0 else ("same" if m["save"] == 0 else f"+{-m['save']}%")
     m["or_blend"], m["sg_blend"] = round(or_blend, 4), round(sg_blend, 4)
     m["f"] = {
         "list_in": money(l["in"]), "list_out": money(l["out"]), "list_cache": money(l.get("cache")),
@@ -228,10 +231,15 @@ def main():
     # ---- main comparison page ----
     son = by_slug.get("claude-sonnet-5-5")
     newest = [by_slug[s]["save"] for s in ("gpt-6-2-sol", "gemini-4-neon") if s in by_slug]
-    cheaper = f"Yes, for every model we track. Claude is about {son['save']}% cheaper" if son else "Yes, for every model we track"
+    pricier = [m["name"] for m in models if not m["cheaper"]]
+    cheaper = ("Yes, for every model we track. " if not pricier else "For most models we track. ") + (
+        f"Claude is about {son['save']}% cheaper" if son else "Claude, GPT and Gemini are cheaper")
     if newest:
-        cheaper += f", the newest GPT-6.2 and Gemini 4 Neon about {min(newest)}–{max(newest)}%"
-    cheaper += f", and popular open models up to {max_save}%."
+        cheaper += f", the newest GPT-6.2 and Gemini 4 Neon about {min(newest)} to {max(newest)}%"
+    cheaper += f", and some open models up to {max_save}%." if max_save > 0 else "."
+    if pricier:
+        cheaper += (f" On {', '.join(pricier)}, OpenRouter's cheapest provider is currently cheaper, "
+                    "so check the table before switching those.")
     faq = [
         faq_item("Is SayGM cheaper than OpenRouter?", cheaper),
         faq_item("Is SayGM private?",
@@ -272,19 +280,29 @@ def main():
         if not m.get("or_estimate"):
             lb = MIX_IN * m["list"]["in"] + MIX_OUT * m["list"]["out"]
             below_list = f" and {round((1 - s / lb) * 100)}% below {m['maker']}'s list price"
+        if m["cheaper"]:
+            q1 = (f"Of the options we compare, SayGM: {m['f']['sg_in']} input and {m['f']['sg_out']} output per million tokens. "
+                  f"That is {m['save']}% less than OpenRouter after its card fee{below_list}.")
+            q2 = (f"How much would I save on {m['name']} at 10M input and 2M output tokens a month?",
+                  f"About {money(o - s)} a month: {money(o)} on OpenRouter against {money(s)} on SayGM.")
+        else:
+            q1 = (f"Right now, OpenRouter's cheapest provider: {m['f']['or_in']} input and {m['f']['or_out']} output per million tokens "
+                  f"including its card fee, against {m['f']['sg_in']} and {m['f']['sg_out']} on SayGM. Prices on open models move often, so check again before you switch.")
+            q2 = (f"Is SayGM cheaper for {m['name']} at 10M input and 2M output tokens a month?",
+                  f"Not at the moment: about {money(s)} on SayGM against {money(o)} on OpenRouter.")
         mfaq = [
-            faq_item(f"What is the cheapest way to use {m['name']} through an API?",
-                     f"Of the options we compare, SayGM: {m['f']['sg_in']} input and {m['f']['sg_out']} output per million tokens. That is {m['save']}% less than OpenRouter after its card fee{below_list}."),
-            faq_item(f"How much would I save on {m['name']} at 10M input and 2M output tokens a month?",
-                     f"About {money(o - s)} a month: {money(o)} on OpenRouter against {money(s)} on SayGM."),
+            faq_item(f"What is the cheapest way to use {m['name']} through an API?", q1),
+            faq_item(*q2),
             faq_item(f"Is {m['name']} on SayGM private?", tee_txt),
             faq_item("Do you earn money from this page?", "Yes. SayGM rewards us when someone signs up through our links and adds credit. Your price is the same either way."),
         ]
         murl = f"{domain}/models/{m['slug']}/"
-        mtitle = f"{m['name']} API: {m['save']}% cheaper on SayGM than OpenRouter"
+        mtitle = (f"{m['name']} API: {m['save']}% cheaper on SayGM than OpenRouter" if m["cheaper"]
+                  else f"{m['name']} API prices: SayGM vs OpenRouter")
         mpage = {
             "title": f"Cheapest {m['name']} API (2026): SayGM vs OpenRouter Prices",
-            "description": f"{m['name']} costs {m['f']['sg_in']} / {m['f']['sg_out']} per 1M tokens on SayGM vs {m['f']['or_in']} / {m['f']['or_out']} on OpenRouter with fees: {m['save']}% less.",
+            "description": (f"{m['name']} costs {m['f']['sg_in']} / {m['f']['sg_out']} per 1M tokens on SayGM vs {m['f']['or_in']} / {m['f']['or_out']} on OpenRouter with fees: "
+                            + (f"{m['save']}% less." if m["cheaper"] else "OpenRouter's cheapest route is currently cheaper.")),
             "og_title": mtitle, "url": murl,
             "jsonld": jsonld([
                 {"@type": "Article", "headline": mtitle, "dateModified": data["checked"], "author": author_ld(site),

@@ -14,15 +14,19 @@ def page_html():
     data = json.loads((ROOT / "data/models.json").read_text())
     site = json.loads((ROOT / "data/site.json").read_text())
     fee = data["openrouter_card_fee"]
-    pick = ["claude-sonnet-5-5", "gpt-6-2-sol", "deepseek-v4-1-flash-1017"]
     by = {m["slug"]: m for m in data["models"]}
+    blend = lambda m: (10 * m["saygm"]["in"] + 2 * m["saygm"]["out"], (10 * m["openrouter"]["in"] + 2 * m["openrouter"]["out"]) * (1 + fee))
+    save = lambda m: 1 - blend(m)[0] / blend(m)[1]
+    # Two big-name models plus the open model with the biggest real saving (never one where SayGM costs more)
+    opens = sorted((m for m in data["models"] if m["maker"] == "Open models" and save(m) > 0), key=save, reverse=True)
+    pick = ["claude-sonnet-5-5", "gpt-6-2-sol"] + [m["slug"] for m in opens[:1]]
     rows, mx = [], 0
     for s in pick:
         m = by[s]
         o = (10 * m["openrouter"]["in"] + 2 * m["openrouter"]["out"]) * (1 + fee)
         g = 10 * m["saygm"]["in"] + 2 * m["saygm"]["out"]
         rows.append((m["name"], o, g, round((1 - g / o) * 100)))
-        mx = max(mx, o)
+        mx = max(mx, o, g)
     bars = "".join(
         f'<div class="r"><div class="n">{n}</div><div class="b"><i style="width:{o/mx*100:.1f}%;background:#c3cad2"></i>'
         f'<i style="width:{g/mx*100:.1f}%;background:#101418"></i></div><div class="p{" t" if p >= 50 else ""}">−{p}%</div></div>'

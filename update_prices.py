@@ -60,6 +60,16 @@ def find_prices(obj, depth=0):
     return None
 
 
+def saygm_prices(e):
+    """SayGM lists prices in nano-dollars per 1M tokens under pricing.dimensions."""
+    dim = (e.get("pricing") or {}).get("dimensions") or {}
+    if "input_per_mtok_ndollars" in dim and "output_per_mtok_ndollars" in dim:
+        nd = lambda k: None if dim.get(k) is None else round(dim[k] / 1e9, 6)
+        return {"in": nd("input_per_mtok_ndollars"), "out": nd("output_per_mtok_ndollars"),
+                "cache": nd("cache_read_per_mtok_ndollars")}
+    return find_prices(e)
+
+
 def items(payload):
     return payload.get("data", payload if isinstance(payload, list) else [])
 
@@ -93,11 +103,11 @@ def main():
             print(f"{m['name']}\n  ours:       saygm={m['saygm_id']}  openrouter={m['openrouter_id']}\n  SayGM has:  {sgm or '-'}\n  OpenRouter: {orm or '-'}")
         return
 
-    changed, warnings = [], []
+    changed, warnings, problems = [], [], []
 
     def apply(m, side, new):
         if not new or new["in"] is None or new["out"] is None:
-            warnings.append(f"{m['name']}: no {side} price found in API entry")
+            problems.append(f"{m['name']}: no {side} price found in API entry")
             return
         old = m[side]
         for k in ("in", "out", "cache"):
@@ -106,7 +116,7 @@ def main():
                 continue
             ov = old.get(k)
             if ov and not a.force and abs(nv - ov) / ov > 0.6:
-                warnings.append(f"{m['name']} {side}.{k}: {ov} -> {nv} skipped (moved >60%, use --force)")
+                problems.append(f"{m['name']} {side}.{k}: {ov} -> {nv} held back (moved >60%; check it, then run with --force)")
                 continue
             if ov != nv:
                 changed.append(f"{m['name']} {side}.{k}: {ov} -> {nv}")
@@ -118,20 +128,25 @@ def main():
             m["id_verified"] = True
             if e.get("tier"):
                 m["tier"] = e["tier"]
-            apply(m, "saygm", find_prices(e))
+            apply(m, "saygm", saygm_prices(e))
         else:
             m["id_verified"] = False
-            warnings.append(f"{m['name']}: SayGM ID '{m['saygm_id']}' not found (run --list)")
+            problems.append(f"{m['name']}: SayGM ID '{m['saygm_id']}' not found (run --list)")
         e = or_by.get(m["openrouter_id"])
         if e:
             apply(m, "openrouter", find_prices(e))
             m["or_estimate"] = False if m["maker"] != "Open models" else m.get("or_estimate", True)
         else:
-            warnings.append(f"{m['name']}: OpenRouter ID '{m['openrouter_id']}' not found (run --list)")
+            problems.append(f"{m['name']}: OpenRouter ID '{m['openrouter_id']}' not found (run --list)")
 
     print("\n".join(changed) or "No price changes.")
     if warnings:
-        print("\nWarnings:\n  " + "\n  ".join(warnings), file=sys.stderr)
+        print("\nNotes:\n  " + "\n  ".join(warnings))
+    if problems:
+        # Never stamp today's date on prices we couldn't confirm. Nothing is saved, the run fails,
+        # and the live site keeps its previous (honest) date until someone looks.
+        print("\nNOT SAVED. These prices could not be confirmed:\n  " + "\n  ".join(problems), file=sys.stderr)
+        sys.exit(1)
     if not a.dry_run:
         data["checked"] = dt.date.today().isoformat()
         DATA.write_text(json.dumps(data, indent=2) + "\n")
