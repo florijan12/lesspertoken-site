@@ -1,5 +1,5 @@
 {
-  "checked": "2026-11-22",
+  "checked": "2026-11-24",
   "openrouter_card_fee": 0.055,
   "note": "Prices are USD per 1M tokens. list = model maker's list price. openrouter = OpenRouter's per-token price before its credit fee. cache = cached input (cache read). null = not published. update_prices.py refreshes saygm and openrouter blocks; check the *_id fields with `python update_prices.py --list` before the first run.",
   "models": [
@@ -18,14 +18,16 @@
       "saygm": {
         "in": 4.12,
         "out": 20.6,
-        "cache": 0.1
+        "cache": 0.103
       },
       "openrouter": {
         "in": 8.0,
         "out": 40.0,
         "cache": 0.2
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "claude-opus-5-5",
@@ -42,14 +44,16 @@
       "saygm": {
         "in": 2.06,
         "out": 10.3,
-        "cache": 0.1
+        "cache": 0.103
       },
       "openrouter": {
         "in": 4.0,
         "out": 20.0,
         "cache": 0.2
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "claude-sonnet-5-5",
@@ -66,14 +70,16 @@
       "saygm": {
         "in": 1.03,
         "out": 5.15,
-        "cache": 0.05
+        "cache": 0.0515
       },
       "openrouter": {
         "in": 2.0,
         "out": 10.0,
         "cache": 0.1
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "claude-haiku-5-5",
@@ -89,14 +95,16 @@
       "saygm": {
         "in": 0.0515,
         "out": 0.2575,
-        "cache": null
+        "cache": 0.00515
       },
       "openrouter": {
         "in": 0.1,
         "out": 0.5,
-        "cache": null
+        "cache": 0.01
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gpt-6-2-astra",
@@ -111,16 +119,18 @@
         "cache": null
       },
       "saygm": {
-        "in": 6.51,
-        "out": 32.55,
-        "cache": null
+        "in": 3.296,
+        "out": 16.48,
+        "cache": 0.1648
       },
       "openrouter": {
         "in": 8.0,
         "out": 40.0,
-        "cache": null
+        "cache": 0.4
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gpt-6-2-sol",
@@ -135,16 +145,18 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.63,
-        "out": 8.14,
-        "cache": null
+        "in": 0.9785,
+        "out": 4.8925,
+        "cache": 0.048925
       },
       "openrouter": {
         "in": 2.0,
         "out": 10.0,
-        "cache": null
+        "cache": 0.1
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-4-neon",
@@ -169,7 +181,9 @@
         "out": 15.0,
         "cache": 0.15
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-4-argon",
@@ -184,16 +198,18 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.19,
-        "out": 5.97,
-        "cache": null
+        "in": 1.1948,
+        "out": 5.974,
+        "cache": 0.05974
       },
       "openrouter": {
         "in": 2.0,
         "out": 10.0,
-        "cache": null
+        "cache": 0.1
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-3-8-flash",
@@ -207,16 +223,18 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.39,
-        "out": 1.93,
-        "cache": null
+        "in": 0.38625,
+        "out": 1.93125,
+        "cache": 0.038625
       },
       "openrouter": {
-        "in": 0.75,
-        "out": 3.75,
-        "cache": null
+        "in": 0.825,
+        "out": 4.125,
+        "cache": 0.0825
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "deepseek-v4-1-flash-1017",
@@ -232,17 +250,18 @@
         "cache": 0.006
       },
       "saygm": {
-        "in": 0.06,
-        "out": 0.25,
-        "cache": 0.001
+        "in": 0.13905,
+        "out": 0.5562,
+        "cache": 0.002781
       },
       "openrouter": {
-        "in": 0.3,
-        "out": 1.2,
-        "cache": 0.006
+        "in": 0.03,
+        "out": 0.2,
+        "cache": 0.001
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     },
     {
       "slug": "deepseek-v4-1-flash",
@@ -258,16 +277,17 @@
         "cache": 0.006
       },
       "saygm": {
-        "in": 0.11,
-        "out": 0.43,
-        "cache": 0.002
+        "in": 0.08034,
+        "out": 0.32136,
+        "cache": 0.001607
       },
       "openrouter": {
-        "in": 0.3,
-        "out": 1.2,
-        "cache": 0.006
+        "in": 0.0507,
+        "out": 0.2028,
+        "cache": 0.001014
       },
-      "id_verified": false
+      "id_verified": true,
+      "tier": "open"
     },
     {
       "slug": "qwen3-8-27b",
@@ -282,17 +302,18 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.06,
-        "out": 0.37,
-        "cache": null
+        "in": 0.0618,
+        "out": 0.3708,
+        "cache": 0.01236
       },
       "openrouter": {
-        "in": 0.5,
-        "out": 3.0,
-        "cache": null
+        "in": 0.035,
+        "out": 1.5,
+        "cache": 0.0175
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     },
     {
       "slug": "kimi-k3",
@@ -307,17 +328,18 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.93,
-        "out": 9.66,
-        "cache": null
+        "in": 1.854,
+        "out": 9.27,
+        "cache": 0.1854
       },
       "openrouter": {
-        "in": 3.0,
-        "out": 15.0,
-        "cache": null
+        "in": 0.192,
+        "out": 16.0,
+        "cache": 0.182
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     },
     {
       "slug": "glm-5-3-flash",
@@ -332,17 +354,18 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.13,
-        "out": 0.43,
-        "cache": null
+        "in": 0.128235,
+        "out": 0.42745,
+        "cache": 0.025647
       },
       "openrouter": {
         "in": 0.15,
         "out": 0.5,
-        "cache": null
+        "cache": 0.03
       },
-      "id_verified": false,
-      "tee": true
+      "id_verified": true,
+      "tee": true,
+      "tier": "open"
     }
   ]
 }
