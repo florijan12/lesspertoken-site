@@ -1,0 +1,157 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="{{ base }}/blog/">Blog</a><a href="#caching">Caching</a><a href="#gateway">Gateway</a>{% endblock %}
+{% block cta_title %}Same models, about {{ ex.save }}% less on Claude{% endblock %}
+{% block main %}
+<article class="post">
+<section class="band" id="top" data-toc="Intro"><div class="wrap">
+<p class="crumb"><a href="{{ base }}/blog/">Blog</a> › Token saving, part {{ post.part }}</p>
+<h1>{{ post.title }}</h1>
+<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %} · {{ post.date_human }} · Prices updated {{ checked_human }}</p>
+<p class="lede">Most LLM bills aren't high because the model is expensive. They're high because the same tokens get sent, generated and paid for again and again. Here are six fixes, each with a worked example, ordered roughly from biggest saving to smallest effort.</p>
+<p class="series">Part {{ post.part }} of a series on spending less per token. All examples use {{ ex.model }} at Anthropic's list price ({{ ex.L.list_in }} input, {{ ex.L.list_out }} output per million tokens) unless noted.</p>
+</div></section>
+
+<section class="band tight" id="basics" data-toc="Where money goes"><div class="wrap">
+<h2>First, where the money goes</h2>
+<p>You pay for three things on every call:</p>
+<ul>
+<li><b>Input tokens:</b> your prompt, plus everything you send along with it: system prompt, tool definitions, documents and the whole conversation so far.</li>
+<li><b>Output tokens:</b> what the model writes back. On {{ ex.model }} these cost {{ ex.output.ratio }}× as much as input.</li>
+<li><b>Repeats:</b> the API has no memory, so the context is sent again on every call. In agents and long chats this is usually the biggest line on the bill.</li>
+</ul>
+<p>Every technique below attacks one of these.</p>
+</div></section>
+
+<section class="band tight" id="caching" data-toc="1. Caching"><div class="wrap">
+<h2>1. Cache what you send on every call</h2>
+<p>If the start of your prompt is identical from call to call (system prompt, tool definitions, a long document), the provider can store it and charge a fraction of the input price when it's reused. On {{ ex.model }}, a cache hit costs {{ ex.L.list_cache }} per million tokens instead of {{ ex.L.list_in }}, just {{ ex.agent.cache_ratio }}% of the normal input price.</p>
+<div class="ex">
+<p class="ex-h">Example: a coding agent</p>
+<p>50M input and 2M output tokens a month, a realistic month for one developer using an agent every day. Most of the input is the same repository context resent on every step, so 85% of it can come from cache.</p>
+<div class="scroll"><table>
+<thead><tr><th>Setup</th><th class="n">Monthly cost</th></tr></thead>
+<tbody>
+<tr><td>No caching</td><td class="n">{{ ex.agent.no_cache }}</td></tr>
+<tr class="you"><td>85% of input from cache</td><td class="n">{{ ex.agent.cached }} <span class="save-tag">−{{ ex.agent.cache_pct }}%</span></td></tr>
+</tbody></table></div>
+</div>
+<p><b>How to get high hit rates:</b></p>
+<ul>
+<li>Put everything stable first and everything that changes last. The cache only matches an exact prefix, so one changed character near the top invalidates the rest.</li>
+<li>Don't put timestamps, request IDs or shuffled tool lists at the top of the prompt.</li>
+<li>Check your usage data for cache read tokens. If they're a small share of input, your prefix is changing somewhere.</li>
+</ul>
+<p class="small">Writing to the cache costs a little more than normal input (1.25× for Anthropic's 5-minute cache), so the table above slightly flatters the result. Anthropic says caching pays for itself after a single cache read.</p>
+</div></section>
+
+<section class="band tight" id="routing" data-toc="2. Routing"><div class="wrap">
+<h2>2. Send easy work to a small model</h2>
+<p>Classifying a ticket, extracting a date or rewriting a sentence doesn't need a frontier model. {{ ex.haiku }} costs {{ ex.H.list_in }} input and {{ ex.H.list_out }} output, {{ ex.route.ratio }}× cheaper than {{ ex.model }} per input token.</p>
+<div class="ex">
+<p class="ex-h">Example: a support bot</p>
+<p>5M input and 1M output tokens a month. Most questions are simple, so 80% go to the small model and only the hard 20% go to the big one.</p>
+<div class="scroll"><table>
+<thead><tr><th>Setup</th><th class="n">Monthly cost</th></tr></thead>
+<tbody>
+<tr><td>Everything on {{ ex.model }}</td><td class="n">{{ ex.route.sonnet }}</td></tr>
+<tr><td>Everything on {{ ex.haiku }}</td><td class="n">{{ ex.route.haiku }}</td></tr>
+<tr class="you"><td>80% small model, 20% big model</td><td class="n">{{ ex.route.mixed }} <span class="save-tag">−{{ ex.route.mixed_pct }}%</span></td></tr>
+</tbody></table></div>
+</div>
+<p>The simplest router is a rule (short message, known intent: small model). A step up is letting the small model answer and escalating when it says it isn't sure. Test on real traffic before switching, since a cheap wrong answer can cost more than an expensive right one.</p>
+</div></section>
+
+<section class="band tight" id="output" data-toc="3. Shorter outputs"><div class="wrap">
+<h2>3. Ask for shorter answers</h2>
+<p>Output is the expensive side of the bill, and models are chatty by default: a friendly preamble, a recap of your question, a summary at the end.</p>
+<div class="ex">
+<p class="ex-h">Example: an app making 1,000 calls a day</p>
+<p>Cutting the average answer from 800 to 300 tokens, by asking for the result only, changes a month's output from {{ ex.output.long_m }}M to {{ ex.output.short_m }}M tokens:</p>
+<div class="scroll"><table>
+<thead><tr><th>Average answer</th><th class="n">Monthly output cost</th></tr></thead>
+<tbody>
+<tr><td>800 tokens</td><td class="n">{{ ex.output.long }}</td></tr>
+<tr class="you"><td>300 tokens</td><td class="n">{{ ex.output.short }} <span class="save-tag">−63%</span></td></tr>
+</tbody></table></div>
+</div>
+<ul>
+<li>Say exactly what you want back: "Return only the JSON", "Reply with the changed lines as a diff".</li>
+<li>Set <code>max_tokens</code> as a safety net, not as the main control. A cut-off answer is often useless and gets retried.</li>
+<li>For code, ask for edits instead of the whole file. Rewriting a 400-line file to change two lines is one of the most common wastes in coding tools.</li>
+</ul>
+</div></section>
+
+<section class="band tight" id="batch" data-toc="4. Batch jobs"><div class="wrap">
+<h2>4. Batch anything that can wait</h2>
+<p>Anthropic, OpenAI and Google all offer a batch API: you send many requests at once, get results within 24 hours, and pay half price. Evals, nightly reports, tagging a backlog and translating content rarely need an answer in seconds.</p>
+<div class="ex">
+<p class="ex-h">Example: a nightly job</p>
+<p>20M input and 5M output tokens a month of overnight processing:</p>
+<div class="scroll"><table>
+<thead><tr><th>Setup</th><th class="n">Monthly cost</th></tr></thead>
+<tbody>
+<tr><td>Real-time API</td><td class="n">{{ ex.batch.live }}</td></tr>
+<tr class="you"><td>Batch API</td><td class="n">{{ ex.batch.batch }} <span class="save-tag">−50%</span></td></tr>
+</tbody></table></div>
+</div>
+<p>On Anthropic, the batch discount stacks with prompt caching. Batch APIs usually run directly with the model maker, so check whether your gateway supports them before planning around it.</p>
+</div></section>
+
+<section class="band tight" id="context" data-toc="5. Trim context"><div class="wrap">
+<h2>5. Stop resending the whole conversation</h2>
+<p>A chat app that sends the full history on every turn pays for the first message again on turn 2, turn 3 and every turn after.</p>
+<div class="ex">
+<p class="ex-h">Example: a 20-turn conversation, 500 tokens per turn</p>
+<div class="scroll"><table>
+<thead><tr><th>Strategy</th><th class="n">Input tokens over 20 turns</th></tr></thead>
+<tbody>
+<tr><td>Resend full history every turn</td><td class="n">{{ ex.context.full }}</td></tr>
+<tr class="you"><td>Last 4 turns + a 300-token summary of the rest</td><td class="n">{{ ex.context.trimmed }} <span class="save-tag">−{{ ex.context.pct }}%</span></td></tr>
+</tbody></table></div>
+</div>
+<ul>
+<li>Keep recent turns word for word and summarise older ones.</li>
+<li>For documents, retrieve the relevant sections instead of pasting the whole file.</li>
+<li>Drop tool results once they've been used. A 5,000-token search result doesn't need to ride along for the rest of the session.</li>
+</ul>
+<p class="small">Trimming and caching pull in opposite directions: a summary that changes every turn breaks the cache. For agents with stable context, cache first; for long chats, trim first.</p>
+</div></section>
+
+<section class="band tight" id="gateway" data-toc="6. Gateway"><div class="wrap">
+<h2>6. Pay less for the same tokens</h2>
+<p>The last lever needs no code changes: the same model costs different amounts depending on where you buy it. OpenRouter charges list price plus a 5.5% card fee. SayGM sells {{ ex.model }} at {{ ex.L.sg_in }} input and {{ ex.L.sg_out }} output, about half of list.</p>
+<div class="ex">
+<p class="ex-h">Example: the cached coding agent from technique 1</p>
+<div class="scroll"><table>
+<thead><tr><th>Where you buy</th><th class="n">Monthly cost</th></tr></thead>
+<tbody>
+<tr><td>OpenRouter, incl. 5.5% fee</td><td class="n">{{ ex.agent.cached_or }}</td></tr>
+<tr><td>Anthropic list price</td><td class="n">{{ ex.agent.cached }}</td></tr>
+<tr class="you"><td>SayGM</td><td class="n">{{ ex.agent.cached_sg }} <span class="save-tag">−{{ ex.agent.sg_vs_or }}% vs OpenRouter</span></td></tr>
+</tbody></table></div>
+</div>
+<p>Switching is a base URL and key change in the OpenAI, Anthropic or Gemini SDK. Prices for every model are in <a href="{{ base }}/#prices">our comparison table</a>. One honest caveat: on Claude, GPT and Gemini, the model maker still processes your prompts whichever gateway you use, so keep secrets and client data on direct or sealed routes.</p>
+<p class="small">Disclosure: we earn a reward if you sign up to SayGM through our links. Your price is the same.</p>
+</div></section>
+
+<section class="band tight" id="together" data-toc="All together"><div class="wrap">
+<h2>Putting it together</h2>
+<p>The techniques stack. Taking the coding agent from {{ ex.agent.no_cache }} a month: caching brings it to {{ ex.agent.cached }}, and buying the same tokens through SayGM brings it to <b>{{ ex.agent.cached_sg }}</b>. That's {{ ex.agent.total_pct }}% less for the same model doing the same work, before routing, shorter outputs or trimming are even applied.</p>
+<div class="three checklist">
+<div><h3>Today</h3><p>Move stable content to the top of prompts. Ask for shorter answers. Compare your per-token price.</p></div>
+<div><h3>This week</h3><p>Check cache hit rates in your usage data. Move overnight jobs to a batch API.</p></div>
+<div><h3>This month</h3><p>Route simple requests to a small model. Summarise long conversations instead of resending them.</p></div>
+</div>
+</div></section>
+
+<section class="band tight" id="next" data-toc="Next in series"><div class="wrap">
+<h2>Next in this series</h2>
+<ul>
+<li><b>Part 2:</b> Prompt caching in depth: structuring prompts so the cache actually hits.</li>
+<li><b>Part 3:</b> Model routing: deciding which requests need the big model.</li>
+<li><b>Part 4:</b> Measuring cost per task, so you know which change worked.</li>
+</ul>
+<p class="small">Sources: <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic pricing</a> (cache and batch rates), <a href="https://saygm.com/models">SayGM prices</a>, <a href="https://openrouter.ai/blog/simplifying-our-platform-fee">OpenRouter platform fee</a>. Dollar figures are recalculated from current prices each time the site updates; token counts in the examples are illustrative.</p>
+</div></section>
+</article>
+{% endblock %}
