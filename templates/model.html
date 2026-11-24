@@ -1,0 +1,87 @@
+{% extends "_base.html" %}
+{% import "_macros.html" as mx %}
+{% block nav %}<a href="{{ base }}/#prices">All models</a><a href="#calculator">Calculator</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a>{% endblock %}
+{% block cta_title %}Use {{ m.name }} for {{ m.save }}% less{% endblock %}
+{% block main %}
+<section class="band" id="overview" data-toc="Prices"><div class="wrap">
+<p class="crumb"><a href="{{ base }}/">SayGM vs OpenRouter</a> › {{ m.name }}</p>
+<h1>{{ m.name }} API: {{ m.save }}% cheaper on SayGM than OpenRouter</h1>
+<p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }}</p>
+<p class="lede">{{ m.name }} costs {{ m.f.sg_in }} input and {{ m.f.sg_out }} output per million tokens on SayGM, against {{ m.f.or_in }} and {{ m.f.or_out }} on OpenRouter once its card fee is added.</p>
+<div class="hi-line">
+<a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Try {{ m.name }} on SayGM</a>
+<span class="small">No subscription, no top-up fee.</span>
+</div>
+
+<div class="scroll" style="margin-top:28px">
+<table>
+<thead><tr><th>Where you buy</th><th class="n">Input</th><th class="n">Cached input</th><th class="n">Output</th></tr></thead>
+<tbody>
+<tr><td>{% if m.or_estimate %}Reference list price{% else %}{{ m.maker }} list price{% endif %}</td><td class="n">{{ m.f.list_in }}</td><td class="n">{{ m.f.list_cache }}</td><td class="n">{{ m.f.list_out }}</td></tr>
+<tr><td>OpenRouter, incl. 5.5% fee{% if m.or_estimate %}†{% endif %}</td><td class="n">{{ m.f.or_in }}</td><td class="n">{{ m.f.or_cache }}</td><td class="n">{{ m.f.or_out }}</td></tr>
+<tr class="you"><td>SayGM</td><td class="n">{{ m.f.sg_in }}</td><td class="n">{{ m.f.sg_cache }}</td><td class="n">{{ m.f.sg_out }}</td></tr>
+</tbody>
+</table>
+</div>
+<p class="small" style="margin-top:10px">US dollars per million tokens, standard tier. “Not published” means the gateway lists no separate cache price.{% if m.note %} {{ m.note }}{% endif %}{% if m.or_estimate %} †OpenRouter's price depends on which provider you route to.{% endif %}</p>
+</div></section>
+
+{{ mx.calculator(site, "What would " ~ m.name ~ " cost you?") }}
+
+{% if bench_row %}
+<section class="band tight" id="test" data-toc="Our test"><div class="wrap">
+<h2>Our test: {{ m.name }} through both gateways</h2>
+{{ mx.bench_table(bench, [bench_row]) }}
+</div></section>
+{% endif %}
+
+<section class="band tight" id="privacy" data-toc="Privacy"><div class="wrap cols">
+<div>
+<h2>Is {{ m.name }} private on SayGM?</h2>
+{% if m.tee %}
+<p>The standard {{ m.name }} route is sealed through SayGM's gateway, then processed by the serving provider under its API terms. SayGM also offers a confidential <code>-tee</code> version that keeps the prompt sealed from request to response, at a smaller discount.</p>
+{% else %}
+<p>Your prompt is sealed while it passes through SayGM's gateway, so SayGM's staff and server host can't read it. The provider that runs {{ m.name }} then processes it under its own API terms, as with any gateway. Switch on redaction to strip personal data and secrets before they leave the enclave.</p>
+{% endif %}
+</div>
+{{ mx.routes() }}
+</div></section>
+
+<section class="band tight" id="switch" data-toc="Switch"><div class="wrap cols">
+<div>
+<h2>Switch in two minutes</h2>
+<p>Change the base URL and key in your existing OpenAI, Anthropic or Gemini SDK code.{% if not m.id_verified %} Copy the exact {{ m.name }} model ID from the <a href="https://api.saygm.com/v1/models">models list</a>.{% endif %}</p>
+</div>
+<div>
+<div class="codehead"><span>Python</span><button type="button" id="copy">Copy</button></div>
+<pre><code id="code">from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.saygm.com/v1",
+    api_key="YOUR_SAYGM_KEY",
+)
+resp = client.chat.completions.create(
+    model="{% if m.id_verified %}{{ m.saygm_id }}{% else %}MODEL_ID{% endif %}",
+    messages=[{"role": "user", "content": "Hello"}],
+)</code></pre>
+</div>
+</div></section>
+
+<section class="band tight" id="faq" data-toc="FAQ"><div class="wrap">
+<h2>FAQ</h2>
+<div class="faq">
+{% for q in faq %}<div><h3>{{ q.q }}</h3><p>{{ q.a_html|safe }}</p></div>
+{% endfor %}
+</div>
+</div></section>
+
+<section class="band tight" id="models" data-toc="Other models"><div class="wrap">
+<h2>Other models</h2>
+<ul class="links">
+{% for o in models if o.slug != m.slug %}<li><a href="{{ base }}/models/{{ o.slug }}/">{{ o.name }}</a><span>−{{ o.save }}%</span></li>
+{% endfor %}
+</ul>
+</div></section>
+
+{{ mx.author_box(site) }}
+{% endblock %}

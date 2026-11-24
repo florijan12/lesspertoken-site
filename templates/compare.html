@@ -1,0 +1,143 @@
+{% extends "_base.html" %}
+{% import "_macros.html" as mx %}
+{% block nav %}<a href="#prices">Prices</a><a href="#calculator">Calculator</a><a href="#alternatives">Alternatives</a><a href="#privacy">Privacy</a><a href="#method">How we test</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a>{% endblock %}
+{% block main %}
+<section class="band" id="overview" data-toc="Savings overview"><div class="wrap">
+<h1>SayGM vs OpenRouter: same models, up to {{ max_save }}% cheaper</h1>
+<p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }} · <a href="#method">How we test</a></p>
+<p class="lede">SayGM works like OpenRouter: one API key for Claude, GPT, Gemini and open models, billed below list price through a gateway that can't read your prompts. Claude costs about half what it does on OpenRouter.</p>
+<div class="hi-line">
+<a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Try SayGM</a>
+<span class="small">No subscription, no top-up fee.</span>
+</div>
+<div class="chart">
+<div class="chart-head">
+<h2 id="chart-title">Monthly cost at 10M input + 2M output tokens</h2>
+<div class="legend"><span><i class="key" style="background:var(--or)"></i>OpenRouter, incl. 5.5% fee</span><span><i class="key" style="background:var(--acc)"></i>SayGM</span></div>
+</div>
+<div id="chart-rows"></div>
+<p class="small" style="margin-top:8px">The green number is how much less SayGM costs. <span id="chart-note"></span></p>
+</div>
+</div></section>
+
+<section class="band tight" id="prices" data-toc="Prices"><div class="wrap">
+<h2>Prices per million tokens</h2>
+<p>Input / output, in US dollars. OpenRouter prices include its 5.5% card fee. Click a model for cached-input prices and details.</p>
+<div class="controls">
+<div class="field"><label for="tbl-search">Find a model</label><input id="tbl-search" type="search" placeholder="Claude, GPT, Gemini…" autocomplete="off"></div>
+<div class="field"><label for="tbl-sort">Sort by</label><select id="tbl-sort"><option value="maker">Maker</option><option value="save">Biggest saving</option><option value="cheap">Cheapest on SayGM</option></select></div>
+</div>
+<div class="scroll">
+<table>
+<thead><tr><th>Model</th><th class="n">OpenRouter</th><th class="n">SayGM</th><th class="n">You save</th></tr></thead>
+<tbody id="tbl-body">
+{% for g in groups %}
+<tr class="grp"><th colspan="4">{{ g.name }}{% if g.name == "Open models" %}†{% endif %}</th></tr>
+{% for m in g.models %}
+<tr data-name="{{ m.name }}" data-save="{{ m.save }}" data-sg="{{ m.sg_blend }}"><td><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a>{% if m.note %}*{% endif %}{% if m.tag %} <span class="tag">{{ m.tag }}</span>{% endif %}</td><td class="n">{{ m.f.or_in }} / {{ m.f.or_out }}</td><td class="n">{{ m.f.sg_in }} / {{ m.f.sg_out }}</td><td class="n save">{{ m.save }}%</td></tr>
+{% endfor %}
+{% endfor %}
+<tr id="tbl-empty" style="display:none"><td colspan="4" class="empty">No model matches. Try “Claude” or “Gemini”.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="small" style="margin-top:10px">Saving on a typical 5:1 input-to-output mix, without caching.{% for m in noted %} *{{ m.note }}{% endfor %} †OpenRouter's price for open models depends on which provider you route to.</p>
+</div></section>
+
+{{ mx.calculator(site, "What would you save?") }}
+
+{% if alt %}
+<section class="band tight" id="alternatives" data-toc="Alternatives"><div class="wrap">
+<h2>SayGM vs other OpenRouter alternatives</h2>
+<p>Cost of {{ alt.workload }} on {{ alt.rows|length }} gateways. The cheapest option for each model is highlighted.</p>
+<div class="scroll">
+<table class="alt">
+<thead><tr><th>Gateway</th>{% for m in alt.cols %}<th class="n">{{ m.name }}</th>{% endfor %}</tr></thead>
+<tbody>
+{% for r in alt.rows %}
+<tr><td><b>{{ r.name }}</b></td>{% for c in r.cells %}<td class="n{% if c.best %} best{% endif %}">{% if c.cost is not none %}<span class="cost">{{ c.cost_f }}{{ c.mark }}</span><span class="pp">{{ c.price_f }}</span>{% else %}<span class="na">{{ c.text }}</span>{% endif %}</td>{% endfor %}</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<p class="small" style="margin-top:10px">Input / output price per million tokens under each cost. SayGM and OpenRouter prices from our check on {{ checked_human }}, OpenRouter including its 5.5% card fee. {% for o in alt.own %}{{ o.name }} prices from <a href="{{ o.url }}">{{ o.label }}</a>, checked {{ o.date }}. {% endfor %}{{ alt.via|join(", ") }} prices from <a href="{{ alt.source.url }}">{{ alt.source.publisher }}'s own comparison</a> of {{ alt.source_date }}, based on each provider's pricing page; SayGM published that comparison, so check providers' pages before you decide.{% for n in alt.notes %} {{ n }}{% endfor %} SayGM's newer DeepSeek V4.1 Flash 1017 build costs less again: see the price table above.</p>
+
+<h3 style="margin-top:28px">How the gateways differ</h3>
+<table class="stack">
+<thead><tr><th>Gateway</th><th>Pricing</th><th>Models</th><th>Privacy</th><th>Best for</th></tr></thead>
+<tbody>
+{% for r in alt.rows %}<tr><td data-l="Gateway"><b>{{ r.name }}</b></td><td data-l="Pricing">{{ r.pricing }}</td><td data-l="Models">{{ r.catalog }}</td><td data-l="Privacy">{{ r.privacy }}</td><td data-l="Best for">{{ r.best }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div></section>
+{% endif %}
+
+<section class="band tight" id="privacy" data-toc="Privacy"><div class="wrap">
+<h2>Privacy you can check, not just trust</h2>
+<div class="cols">
+<div>
+<p>SayGM's gateway runs inside a sealed Intel TDX enclave. Your connection is decrypted only inside it, so SayGM's staff and the server host can't read your prompts. Anyone can confirm this with a public attestation check.</p>
+<p>How far the seal reaches depends on the model you pick. SayGM's models list tells your code which route each model takes, so you can choose before you send.</p>
+</div>
+{{ mx.routes() }}
+</div>
+<div class="three" style="margin-top:28px">
+<div><h3>No prompts in logs</h3><p>Prompts and replies are left out of every record SayGM keeps. Diagnostics such as latency and errors are kept for 30 days.</p></div>
+<div><h3>Automatic redaction</h3><p>Switch on guardrails for a key and personal data or secrets are replaced with placeholders inside the enclave before the model sees them, then restored in the reply.</p></div>
+<div><h3>Verify it yourself</h3><p>Call <code>/attestation/info</code> with a random value and check the signed quote with any TDX verifier. No account needed.</p></div>
+</div>
+</div></section>
+
+<section class="band tight" id="good-to-know" data-toc="Good to know"><div class="wrap">
+<h2>Good to know before you switch</h2>
+<div class="three">
+<div><h3>Market pricing, capped at list</h3><p>Providers compete for every request, so prices follow the market but never go above the model maker's list price. The date at the top shows our latest check.</p></div>
+<div><h3>Pick your privacy level</h3><p>Claude, GPT and Gemini requests are sealed through SayGM, then processed by the model provider under its API terms, as with any gateway. For data that must stay sealed end to end, choose a <code>-tee</code> model.</p></div>
+<div><h3>Easy to try alongside OpenRouter</h3><p>74 models, pay as you go, no subscription. It uses the same API format, so you can keep your OpenRouter key as a ready fallback.</p></div>
+</div>
+</div></section>
+
+<section class="band tight" id="method" data-toc="How we test"><div class="wrap">
+<h2>How we test</h2>
+<div class="cols">
+<p><b>Prices</b> come straight from SayGM's and OpenRouter's public model lists; the date at the top shows the last refresh. Makers' list prices are checked against their official pricing pages. OpenRouter prices include its 5.5% card fee, because that is what you pay.</p>
+<p>{% if bench %}<b>Speed, reliability and real cost</b> come from our own runs: the same prompts sent through both gateways with the same settings, recording time to first token, failed requests and the cost of each request.{% else %}We compare like for like: the same model, the same token counts and standard (non-batch) pricing on both sides. Savings use a 5:1 input-to-output mix without caching unless the calculator says otherwise.{% endif %}</p>
+</div>
+{% if bench %}<div style="margin-top:12px">{{ mx.bench_table(bench, bench_rows) }}</div>{% endif %}
+</div></section>
+
+<section class="band tight" id="switch" data-toc="Switch"><div class="wrap cols">
+<div>
+<h2>Switch in two minutes</h2>
+<p>Keep your code. Change the base URL and the API key, then pick a model from the <a href="https://api.saygm.com/v1/models">models list</a>. Works with the OpenAI, Anthropic and Gemini SDKs.</p>
+</div>
+<div>
+<div class="codehead"><span>Python</span><button type="button" id="copy">Copy</button></div>
+<pre><code id="code">from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.saygm.com/v1",
+    api_key="YOUR_SAYGM_KEY",
+)</code></pre>
+</div>
+</div></section>
+
+<section class="band tight" id="faq" data-toc="FAQ"><div class="wrap">
+<h2>FAQ</h2>
+<div class="faq">
+{% for q in faq %}<div><h3>{{ q.q }}</h3><p>{{ q.a_html|safe }}</p></div>
+{% endfor %}
+</div>
+</div></section>
+
+<section class="band tight" id="models" data-toc="All models"><div class="wrap">
+<h2>Prices by model</h2>
+<ul class="links">
+{% for m in models %}<li><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a><span>−{{ m.save }}%</span></li>
+{% endfor %}
+</ul>
+</div></section>
+
+{{ mx.author_box(site) }}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="{{ base }}/blog/">Blog</a>{% endblock %}
+{% block main %}
+<section class="band"><div class="wrap">
+<h1>Spend less per token</h1>
+<p class="lede">Practical ways to cut LLM API costs, with worked examples and real prices.</p>
+<div class="postlist">
+{% for p in posts|reverse %}<a class="postcard" href="{{ base }}/blog/{{ p.slug }}/">
+<span class="small">Part {{ p.part }} · {{ p.date_human }}</span>
+<h2>{{ p.title }}</h2>
+<p>{{ p.description }}</p>
+<span class="more">Read the post →</span>
+</a>
+{% endfor %}
+</div>
+</div></section>
+{% endblock %}

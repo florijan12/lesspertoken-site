@@ -1,0 +1,67 @@
+{% macro calculator(site, title) %}
+<section class="band tight" id="calculator" data-toc="Calculator"><div class="wrap">
+<h2>{{ title }}</h2>
+<div class="calc">
+<form onsubmit="return false">
+<p class="label" style="margin-bottom:8px">Example workloads</p>
+<div class="presets">
+<button type="button" class="chip" aria-pressed="false" data-in="50" data-out="2" data-cache="85">Coding agent</button>
+<button type="button" class="chip" aria-pressed="false" data-in="5" data-out="1" data-cache="20">Chatbot</button>
+<button type="button" class="chip" aria-pressed="false" data-in="20" data-out="5" data-cache="0">Batch job</button>
+</div>
+<div class="field"><label for="calc-model">Model</label><select id="calc-model"></select></div>
+<div class="two">
+<div class="field"><label for="calc-in">Input tokens / month (millions)</label><input id="calc-in" type="number" min="0" step="1" value="10" inputmode="decimal"></div>
+<div class="field"><label for="calc-out">Output tokens / month (millions)</label><input id="calc-out" type="number" min="0" step="1" value="2" inputmode="decimal"></div>
+</div>
+<div class="field"><label for="calc-cache">Input served from cache: <span id="calc-cache-val">0%</span></label><input id="calc-cache" type="range" min="0" max="95" step="5" value="0"></div>
+<p class="note" id="calc-note" aria-live="polite"></p>
+</form>
+<div class="result" aria-live="polite">
+<p class="small" style="margin:0">You save per month</p>
+<div class="big" id="r-save">$0</div>
+<p class="small" id="r-pct" style="margin:6px 0 0;font-weight:700;color:var(--good)"></p>
+<dl>
+<dt>OpenRouter, incl. 5.5% fee</dt><dd id="r-or">$0</dd>
+<dt>SayGM</dt><dd id="r-sg">$0</dd>
+<dt>Per year</dt><dd id="r-year">$0</dd>
+</dl>
+<a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Get a SayGM key</a>
+</div>
+</div>
+<p class="small" style="margin-top:10px">Coding agents re-send long context, so most of their input is cache reads. That is why the cache slider matters more than the totals.</p>
+</div></section>
+{% endmacro %}
+
+{% macro routes() %}
+<div class="routes">
+<div class="route"><h3>Claude, GPT, Gemini and most open models</h3><div class="path"><span class="step">Your app</span><span class="arrow">→</span><span class="step sealed">SayGM, sealed</span><span class="arrow">→</span><span class="step open">Model provider</span></div><p class="small">The model provider handles your request under its own API terms.</p></div>
+<div class="route"><h3>Confidential models (<code>-tee</code>)</h3><div class="path"><span class="step">Your app</span><span class="arrow">→</span><span class="step sealed">SayGM, sealed</span><span class="arrow">→</span><span class="step sealed">Model, sealed</span></div><p class="small">The model runs in an enclave too, so the prompt stays sealed from request to response. Kimi, GLM, Qwen and DeepSeek have <code>-tee</code> versions, with smaller discounts.</p></div>
+</div>
+{% endmacro %}
+
+{% macro author_box(site) %}
+{% if site.author.name %}
+<section class="band tight" id="author"><div class="wrap">
+<div class="author">
+<div class="avatar" aria-hidden="true">{{ site.author.name[:1] }}</div>
+<div><h3>About the author</h3><p><b>{% if site.author.url %}<a href="{{ site.author.url }}" rel="author">{{ site.author.name }}</a>{% else %}{{ site.author.name }}{% endif %}</b>{% if site.author.bio %}. {{ site.author.bio }}{% endif %}</p></div>
+</div>
+</div></section>
+{% endif %}
+{% endmacro %}
+
+{% macro bench_table(bench, rows) %}
+<div class="scroll">
+<table>
+<thead><tr><th>Model</th><th>Gateway</th><th class="n">First token</th><th class="n">Success</th><th class="n">Cost / 100</th></tr></thead>
+<tbody>
+{% for r in rows %}
+<tr class="you"><td rowspan="2" style="background:var(--bg);font-weight:700">{{ r.name }}</td><td>SayGM</td><td class="n">{{ r.saygm.ttft }}</td><td class="n">{{ r.saygm.success }}</td><td class="n">{{ r.saygm.cost100 }}</td></tr>
+<tr><td>OpenRouter</td><td class="n">{{ r.openrouter.ttft }}</td><td class="n">{{ r.openrouter.success }}</td><td class="n">{{ r.openrouter.cost100 }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<p class="small" style="margin-top:10px">Median of {{ bench.n }} identical requests per model and gateway, sent on {{ bench.date_human }}{% if bench.location %} from {{ bench.location }}{% endif %}. Cost / 100 is the price of 100 such requests: the amount billed where the gateway reports it, otherwise tokens used × published price, including OpenRouter's 5.5% card fee.</p>
+{% endmacro %}
