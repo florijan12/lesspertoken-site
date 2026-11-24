@@ -222,7 +222,7 @@
       "slug": "deepseek-v4-1-flash-1017",
       "name": "DeepSeek V4.1 Flash 1017",
       "maker": "Open models",
-      "featured": true,
+      "featured": false,
       "or_estimate": true,
       "saygm_id": "deepseek-v4.1-flash-1017",
       "openrouter_id": "deepseek/deepseek-v4.1-flash-1017",
