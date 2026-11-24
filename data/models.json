@@ -1,0 +1,348 @@
+{
+  "checked": "2026-11-22",
+  "openrouter_card_fee": 0.055,
+  "note": "Prices are USD per 1M tokens. list = model maker's list price. openrouter = OpenRouter's per-token price before its credit fee. cache = cached input (cache read). null = not published. update_prices.py refreshes saygm and openrouter blocks; check the *_id fields with `python update_prices.py --list` before the first run.",
+  "models": [
+    {
+      "slug": "claude-fable-5-2",
+      "name": "Claude Fable 5.2",
+      "maker": "Anthropic",
+      "featured": true,
+      "saygm_id": "claude-fable-5.2",
+      "openrouter_id": "anthropic/claude-fable-5.2",
+      "list": {
+        "in": 8.0,
+        "out": 40.0,
+        "cache": 0.2
+      },
+      "saygm": {
+        "in": 4.12,
+        "out": 20.6,
+        "cache": 0.1
+      },
+      "openrouter": {
+        "in": 8.0,
+        "out": 40.0,
+        "cache": 0.2
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "claude-opus-5-5",
+      "name": "Claude Opus 5.5",
+      "maker": "Anthropic",
+      "featured": true,
+      "saygm_id": "claude-opus-5.5",
+      "openrouter_id": "anthropic/claude-opus-5.5",
+      "list": {
+        "in": 4.0,
+        "out": 20.0,
+        "cache": 0.2
+      },
+      "saygm": {
+        "in": 2.06,
+        "out": 10.3,
+        "cache": 0.1
+      },
+      "openrouter": {
+        "in": 4.0,
+        "out": 20.0,
+        "cache": 0.2
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "claude-sonnet-5-5",
+      "name": "Claude Sonnet 5.5",
+      "maker": "Anthropic",
+      "featured": true,
+      "saygm_id": "claude-sonnet-5.5",
+      "openrouter_id": "anthropic/claude-sonnet-5.5",
+      "list": {
+        "in": 2.0,
+        "out": 10.0,
+        "cache": 0.1
+      },
+      "saygm": {
+        "in": 1.03,
+        "out": 5.15,
+        "cache": 0.05
+      },
+      "openrouter": {
+        "in": 2.0,
+        "out": 10.0,
+        "cache": 0.1
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "claude-haiku-5-5",
+      "name": "Claude Haiku 5.5",
+      "maker": "Anthropic",
+      "saygm_id": "claude-haiku-5.5",
+      "openrouter_id": "anthropic/claude-haiku-5.5",
+      "list": {
+        "in": 0.1,
+        "out": 0.5,
+        "cache": null
+      },
+      "saygm": {
+        "in": 0.0515,
+        "out": 0.2575,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 0.1,
+        "out": 0.5,
+        "cache": null
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "gpt-6-2-astra",
+      "name": "GPT-6.2 Astra",
+      "maker": "OpenAI",
+      "featured": true,
+      "saygm_id": "gpt-6.2-astra",
+      "openrouter_id": "openai/gpt-6.2-astra",
+      "list": {
+        "in": 8.0,
+        "out": 40.0,
+        "cache": null
+      },
+      "saygm": {
+        "in": 6.51,
+        "out": 32.55,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 8.0,
+        "out": 40.0,
+        "cache": null
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "gpt-6-2-sol",
+      "name": "GPT-6.2 Sol",
+      "maker": "OpenAI",
+      "featured": true,
+      "saygm_id": "gpt-6.2-sol",
+      "openrouter_id": "openai/gpt-6.2-sol",
+      "list": {
+        "in": 2.0,
+        "out": 10.0,
+        "cache": null
+      },
+      "saygm": {
+        "in": 1.63,
+        "out": 8.14,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 2.0,
+        "out": 10.0,
+        "cache": null
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "gemini-4-neon",
+      "name": "Gemini 4 Neon",
+      "maker": "Google",
+      "featured": true,
+      "tag": "newest",
+      "saygm_id": "gemini-4-neon",
+      "openrouter_id": "google/gemini-4-neon",
+      "list": {
+        "in": 3.0,
+        "out": 15.0,
+        "cache": 0.15
+      },
+      "saygm": {
+        "in": 2.472,
+        "out": 12.36,
+        "cache": 0.1236
+      },
+      "openrouter": {
+        "in": 3.0,
+        "out": 15.0,
+        "cache": 0.15
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "gemini-4-argon",
+      "name": "Gemini 4 Argon",
+      "maker": "Google",
+      "note": "Google promo price; Argon doubles to $4 / $20 on 1 December 2026.",
+      "saygm_id": "gemini-4-argon",
+      "openrouter_id": "google/gemini-4-argon",
+      "list": {
+        "in": 2.0,
+        "out": 10.0,
+        "cache": null
+      },
+      "saygm": {
+        "in": 1.19,
+        "out": 5.97,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 2.0,
+        "out": 10.0,
+        "cache": null
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "gemini-3-8-flash",
+      "name": "Gemini 3.8 Flash",
+      "maker": "Google",
+      "saygm_id": "gemini-3.8-flash",
+      "openrouter_id": "google/gemini-3.8-flash",
+      "list": {
+        "in": 0.75,
+        "out": 3.75,
+        "cache": null
+      },
+      "saygm": {
+        "in": 0.39,
+        "out": 1.93,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 0.75,
+        "out": 3.75,
+        "cache": null
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "deepseek-v4-1-flash-1017",
+      "name": "DeepSeek V4.1 Flash 1017",
+      "maker": "Open models",
+      "featured": true,
+      "or_estimate": true,
+      "saygm_id": "deepseek-v4.1-flash-1017",
+      "openrouter_id": "deepseek/deepseek-v4.1-flash-1017",
+      "list": {
+        "in": 0.3,
+        "out": 1.2,
+        "cache": 0.006
+      },
+      "saygm": {
+        "in": 0.06,
+        "out": 0.25,
+        "cache": 0.001
+      },
+      "openrouter": {
+        "in": 0.3,
+        "out": 1.2,
+        "cache": 0.006
+      },
+      "id_verified": false,
+      "tee": true
+    },
+    {
+      "slug": "deepseek-v4-1-flash",
+      "name": "DeepSeek V4.1 Flash",
+      "maker": "Open models",
+      "or_estimate": true,
+      "tee": true,
+      "saygm_id": "deepseek-v4.1-flash",
+      "openrouter_id": "deepseek/deepseek-v4.1-flash",
+      "list": {
+        "in": 0.3,
+        "out": 1.2,
+        "cache": 0.006
+      },
+      "saygm": {
+        "in": 0.11,
+        "out": 0.43,
+        "cache": 0.002
+      },
+      "openrouter": {
+        "in": 0.3,
+        "out": 1.2,
+        "cache": 0.006
+      },
+      "id_verified": false
+    },
+    {
+      "slug": "qwen3-8-27b",
+      "name": "Qwen3.8 27B",
+      "maker": "Open models",
+      "or_estimate": true,
+      "saygm_id": "qwen3.8-27b",
+      "openrouter_id": "qwen/qwen3.8-27b",
+      "list": {
+        "in": 0.5,
+        "out": 3.0,
+        "cache": null
+      },
+      "saygm": {
+        "in": 0.06,
+        "out": 0.37,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 0.5,
+        "out": 3.0,
+        "cache": null
+      },
+      "id_verified": false,
+      "tee": true
+    },
+    {
+      "slug": "kimi-k3",
+      "name": "Kimi K3",
+      "maker": "Open models",
+      "or_estimate": true,
+      "saygm_id": "kimi-k3",
+      "openrouter_id": "moonshotai/kimi-k3",
+      "list": {
+        "in": 3.0,
+        "out": 15.0,
+        "cache": null
+      },
+      "saygm": {
+        "in": 1.93,
+        "out": 9.66,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 3.0,
+        "out": 15.0,
+        "cache": null
+      },
+      "id_verified": false,
+      "tee": true
+    },
+    {
+      "slug": "glm-5-3-flash",
+      "name": "GLM 5.3 Flash",
+      "maker": "Open models",
+      "or_estimate": true,
+      "saygm_id": "glm-5.3-flash",
+      "openrouter_id": "z-ai/glm-5.3-flash",
+      "list": {
+        "in": 0.15,
+        "out": 0.5,
+        "cache": null
+      },
+      "saygm": {
+        "in": 0.13,
+        "out": 0.43,
+        "cache": null
+      },
+      "openrouter": {
+        "in": 0.15,
+        "out": 0.5,
+        "cache": null
+      },
+      "id_verified": false,
+      "tee": true
+    }
+  ]
+}

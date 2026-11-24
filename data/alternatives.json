@@ -1,0 +1,143 @@
+{
+  "source": {
+    "title": "Top 5 OpenRouter Alternatives (With Real Pricing)",
+    "publisher": "SayGM",
+    "url": "https://saygm.com/blog/top-5-openrouter-alternatives-with-real-pricing",
+    "checked": "2026-11-13"
+  },
+  "workload": {
+    "tokens_m": 100,
+    "input_share": 0.8
+  },
+  "models": [
+    "claude-sonnet-5-5",
+    "deepseek-v4-1-flash",
+    "kimi-k3"
+  ],
+  "gateways": [
+    {
+      "name": "SayGM",
+      "source": "saygm",
+      "pricing": "No subscription or top-up fee; every model at or below list price",
+      "catalog": "74 models, some on confidential -tee routes",
+      "privacy": "Attested enclave gateway; -tee models sealed end to end",
+      "best": "Lowest price on Claude and many open models"
+    },
+    {
+      "name": "OpenRouter",
+      "source": "openrouter",
+      "pricing": "Provider price + 5.5% fee on credit (8% on Business)",
+      "catalog": "About 475 models from 122 providers",
+      "privacy": "Policies and account settings",
+      "best": "Widest catalogue and free models for testing"
+    },
+    {
+      "name": "DeepInfra",
+      "prices": {
+        "claude-sonnet-5-5": [
+          2.0,
+          10.0
+        ],
+        "deepseek-v4-1-flash": [
+          0.14,
+          0.42
+        ],
+        "kimi-k3": [
+          2.85,
+          14.25
+        ]
+      },
+      "notes": {
+        "deepseek-v4-1-flash": "30% promotion; standard $0.20 / $0.60"
+      },
+      "pricing": "Pay per token; Priority tier 1.5x, Flex tier 0.8x",
+      "catalog": "About 180 models, incl. Claude and Gemini",
+      "privacy": "No storage or training without consent",
+      "best": "Open models at high volume",
+      "via_source": true
+    },
+    {
+      "name": "Requesty",
+      "prices": {
+        "claude-sonnet-5-5": [
+          2.1,
+          10.5
+        ],
+        "deepseek-v4-1-flash": [
+          0.16,
+          0.63
+        ],
+        "kimi-k3": [
+          3.15,
+          15.75
+        ]
+      },
+      "pricing": "Provider price + 5%; free tier of 200 requests a day",
+      "catalog": "600+ models",
+      "privacy": "EU data residency on every plan",
+      "best": "Simplest managed swap for OpenRouter",
+      "via_source": true
+    },
+    {
+      "name": "Together AI",
+      "prices": {
+        "claude-sonnet-5-5": "Not offered",
+        "deepseek-v4-1-flash": [
+          0.3,
+          1.2
+        ],
+        "kimi-k3": [
+          3.0,
+          15.0
+        ]
+      },
+      "pricing": "Pay per token; cheaper batch rates",
+      "catalog": "200+ models, incl. image, video and audio",
+      "privacy": "No training without opt-in; zero retention available",
+      "best": "Fine-tuning and dedicated capacity",
+      "via_source": true
+    },
+    {
+      "name": "Cheaper Inference",
+      "prices": {
+        "claude-sonnet-5-5": "Not published",
+        "deepseek-v4-1-flash": [
+          0.08,
+          0.33
+        ],
+        "kimi-k3": "Not published"
+      },
+      "pricing": "Discounts off list; $5 minimum deposit",
+      "catalog": "571 models, incl. image, video and audio",
+      "privacy": "Zero retention on supported routes",
+      "best": "Discounted catalogue including media models",
+      "via_source": true
+    },
+    {
+      "name": "Venice",
+      "prices": {
+        "claude-sonnet-5-5": [
+          2.0,
+          10.0
+        ],
+        "deepseek-v4-1-flash": [
+          0.3,
+          1.2
+        ],
+        "kimi-k3": [
+          3.75,
+          18.75
+        ]
+      },
+      "own_source": {
+        "label": "Venice's pricing docs",
+        "url": "https://docs.venice.ai/welcome/pricing",
+        "checked": "2026-11-22"
+      },
+      "pricing": "Pay per token; also daily credit from staked VVV/DIEM tokens, or USDC per request",
+      "catalog": "148 text models, plus image, video and audio",
+      "privacy": "Anonymized proxy for Claude, GPT and Gemini (provider may still see prompts); zero-retention and end-to-end encrypted options for open models",
+      "best": "Privacy-first use, incl. end-to-end encrypted open models"
+    }
+  ]
+}
