@@ -1,11 +1,11 @@
 {% extends "_base.html" %}
 {% import "_macros.html" as mx %}
 {% block nav %}<a href="{{ base }}/#prices">All models</a><a href="#calculator">Calculator</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a>{% endblock %}
-{% block cta_title %}Use {{ m.name }} for {{ m.save }}% less{% endblock %}
+{% block cta_title %}{% if m.cheaper %}Use {{ m.name }} for {{ m.save }}% less{% else %}Compare {{ m.name }} prices before you switch{% endif %}{% endblock %}
 {% block main %}
 <section class="band" id="overview" data-toc="Prices"><div class="wrap">
 <p class="crumb"><a href="{{ base }}/">SayGM vs OpenRouter</a> › {{ m.name }}</p>
-<h1>{{ m.name }} API: {{ m.save }}% cheaper on SayGM than OpenRouter</h1>
+<h1>{% if m.cheaper %}{{ m.name }} API: {{ m.save }}% cheaper on SayGM than OpenRouter{% else %}{{ m.name }} API: OpenRouter is currently cheaper{% endif %}</h1>
 <p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }}</p>
 <p class="lede">{{ m.name }} costs {{ m.f.sg_in }} input and {{ m.f.sg_out }} output per million tokens on SayGM, against {{ m.f.or_in }} and {{ m.f.or_out }} on OpenRouter once its card fee is added.</p>
 <div class="hi-line">
@@ -78,7 +78,7 @@ resp = client.chat.completions.create(
 <section class="band tight" id="models" data-toc="Other models"><div class="wrap">
 <h2>Other models</h2>
 <ul class="links">
-{% for o in models if o.slug != m.slug %}<li><a href="{{ base }}/models/{{ o.slug }}/">{{ o.name }}</a><span>−{{ o.save }}%</span></li>
+{% for o in models if o.slug != m.slug %}<li><a href="{{ base }}/models/{{ o.slug }}/">{{ o.name }}</a><span>{{ o.save_badge }}</span></li>
 {% endfor %}
 </ul>
 </div></section>

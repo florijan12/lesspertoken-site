@@ -88,7 +88,7 @@ table{border-collapse:collapse;width:100%;font-size:16px}
 th,td{padding:10px;border-bottom:1px solid var(--rule);text-align:left}
 thead th{border-bottom:2px solid var(--ink);font-size:14px}
 .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-td.save{font-weight:800;font-size:18px;color:var(--good)}
+td.save{font-weight:800;font-size:18px;color:var(--good)}td.save.worse{color:var(--mute);font-weight:600}.pct.worse strong{color:var(--mute)}
 td a{text-decoration-color:var(--rule)}
 td a:hover{text-decoration-color:currentColor}
 table.alt td{vertical-align:top}
@@ -222,19 +222,19 @@ $('calc-cache-val').textContent=Math.round(share*100)+'%';
 const rowsEl=$('chart-rows');
 if(rowsEl){
 const rows=D.models.filter(m=>m.c).map(m=>({m,...cost(m,i,o,share)})).sort((a,b)=>b.p-a.p||b.or-a.or);
-const max=Math.max(...rows.map(r=>r.or),0.0001);
+const max=Math.max(...rows.map(r=>Math.max(r.or,r.sg)),0.0001);
 let star=false;
 $('chart-title').textContent=`Monthly cost at ${i}M input + ${o}M output tokens`+(share>0?`, ${Math.round(share*100)}% cached`:'');
 rowsEl.innerHTML=rows.map(r=>{const s=share>0&&!r.hasC;if(s)star=true;return `<div class="row"><b><a href="${D.base}/models/${r.m.slug}/">${r.m.n}</a>${s?'*':''}</b><div class="bars">
 <div class="bar"><div class="track"><div class="fill" style="width:${(r.or/max*100).toFixed(1)}%;background:var(--or)"></div></div><span class="val">${fmt.format(r.or)}</span></div>
 <div class="bar"><div class="track"><div class="fill" style="width:${(r.sg/max*100).toFixed(1)}%;background:var(--acc)"></div></div><span class="val">${fmt.format(r.sg)}</span></div>
-</div><div class="pct${r.p>=50?' top':''}"><strong>−${r.p}%</strong></div></div>`}).join('');
+</div><div class="pct${r.p>=50?' top':''}${r.p<=0?' worse':''}"><strong>${r.p>0?'−'+r.p+'%':r.p<0?'+'+(-r.p)+'%':'same'}</strong></div></div>`}).join('');
 $('chart-note').textContent=star?'*No published cache price, so all input is counted as uncached.':'';
 }
 const m=D.models.find(x=>x.slug===sel.value)||D.models[0];
 const c=cost(m,i,o,share),s=c.or-c.sg;
-$('r-save').textContent=fmt.format(s);
-$('r-pct').textContent=c.p+'% less';
+$('r-save').textContent=fmt.format(Math.max(s,0));
+$('r-pct').textContent=s>0?c.p+'% less':'OpenRouter is cheaper for this model right now';
 $('r-or').textContent=fmt.format(c.or);
 $('r-sg').textContent=fmt.format(c.sg);
 $('r-year').textContent=fmt.format(s*12);

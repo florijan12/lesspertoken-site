@@ -34,7 +34,7 @@
 {% for g in groups %}
 <tr class="grp"><th colspan="4">{{ g.name }}{% if g.name == "Open models" %}†{% endif %}</th></tr>
 {% for m in g.models %}
-<tr data-name="{{ m.name }}" data-save="{{ m.save }}" data-sg="{{ m.sg_blend }}"><td><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a>{% if m.note %}*{% endif %}{% if m.tag %} <span class="tag">{{ m.tag }}</span>{% endif %}</td><td class="n">{{ m.f.or_in }} / {{ m.f.or_out }}</td><td class="n">{{ m.f.sg_in }} / {{ m.f.sg_out }}</td><td class="n save">{{ m.save }}%</td></tr>
+<tr data-name="{{ m.name }}" data-save="{{ m.save }}" data-sg="{{ m.sg_blend }}"><td><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a>{% if m.note %}*{% endif %}{% if m.tag %} <span class="tag">{{ m.tag }}</span>{% endif %}</td><td class="n">{{ m.f.or_in }} / {{ m.f.or_out }}</td><td class="n">{{ m.f.sg_in }} / {{ m.f.sg_out }}</td><td class="n save{% if not m.cheaper %} worse{% endif %}">{% if m.cheaper %}{{ m.save }}%{% else %}none{% endif %}</td></tr>
 {% endfor %}
 {% endfor %}
 <tr id="tbl-empty" style="display:none"><td colspan="4" class="empty">No model matches. Try “Claude” or “Gemini”.</td></tr>
@@ -134,7 +134,7 @@ client = OpenAI(
 <section class="band tight" id="models" data-toc="All models"><div class="wrap">
 <h2>Prices by model</h2>
 <ul class="links">
-{% for m in models %}<li><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a><span>−{{ m.save }}%</span></li>
+{% for m in models %}<li><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a><span>{{ m.save_badge }}</span></li>
 {% endfor %}
 </ul>
 </div></section>
