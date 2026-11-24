@@ -1,17 +1,17 @@
-name: Inspect price APIs (temporary)
+name: Preview price changes (temporary)
 
 on:
   workflow_dispatch:
 
 jobs:
-  inspect:
+  preview:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Print API data
+      - name: Show what a refresh would change (nothing is saved)
         env:
           SAYGM_API_KEY: ${{ secrets.SAYGM_API_KEY }}
-        run: python inspect_api.py
+        run: python update_prices.py --dry-run --force

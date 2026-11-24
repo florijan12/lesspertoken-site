@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "17 4 * * *"   # every day at 04:17 UTC
   workflow_dispatch:        # "Run workflow" button in the Actions tab
+    inputs:
+      force:
+        description: "Accept price moves over 60% (only after checking them)"
+        type: boolean
+        default: false
   push:
     branches: [main]
 
@@ -18,12 +23,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install jinja2
+      - run: pip install jinja2 playwright && python -m playwright install --with-deps chromium
       - name: Refresh prices
         if: github.event_name != 'push'
         env:
           SAYGM_API_KEY: ${{ secrets.SAYGM_API_KEY }}
-        run: python update_prices.py
+        run: python update_prices.py ${{ inputs.force && '--force' || '' }}
       - name: Save updated prices
         if: github.event_name != 'push'
         run: |
@@ -32,10 +37,13 @@ jobs:
           git add data/models.json
           git diff --cached --quiet || git commit -m "Refresh prices $(date -u +%F)"
           git push
+      - name: Redraw share image from current prices
+        run: python og.py
       - run: python build.py
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
           command: deploy
