@@ -60,7 +60,7 @@
 </tbody>
 </table>
 </div>
-<p class="small" style="margin-top:10px">Input / output price per million tokens under each cost. SayGM and OpenRouter prices from our check on {{ checked_human }}, OpenRouter including its 5.5% card fee. {% for o in alt.own %}{{ o.name }} prices from <a href="{{ o.url }}">{{ o.label }}</a>, checked {{ o.date }}. {% endfor %}{{ alt.via|join(", ") }} prices from <a href="{{ alt.source.url }}">{{ alt.source.publisher }}'s own comparison</a> of {{ alt.source_date }}, based on each provider's pricing page; SayGM published that comparison, so check providers' pages before you decide.{% for n in alt.notes %} {{ n }}{% endfor %} SayGM's newer DeepSeek V4.1 Flash 1017 build costs less again: see the price table above.</p>
+<p class="small" style="margin-top:10px">Input / output price per million tokens under each cost. SayGM and OpenRouter prices from our check on {{ checked_human }}, OpenRouter including its 5.5% card fee. {% for o in alt.own %}{{ o.name }} prices from <a href="{{ o.url }}">{{ o.label }}</a>, checked {{ o.date }}. {% endfor %}{{ alt.via|join(", ") }} prices from <a href="{{ alt.source.url }}">{{ alt.source.publisher }}'s own comparison</a> of {{ alt.source_date }}, based on each provider's pricing page; SayGM published that comparison, so check providers' pages before you decide.{% for n in alt.notes %} {{ n }}{% endfor %}</p>
 
 <h3 style="margin-top:28px">How the gateways differ</h3>
 <table class="stack">
