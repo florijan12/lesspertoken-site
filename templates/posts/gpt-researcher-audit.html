@@ -1,0 +1,101 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="{{ base }}/blog/">Blog</a><a href="#caching">Caching</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
+{% block cta_title %}Cut the waste, then pay less for what's left{% endblock %}
+{% block main %}
+<article class="post">
+<section class="band" id="top" data-toc="Intro"><div class="wrap">
+<p class="crumb"><a href="{{ base }}/blog/">Blog</a> › Token saving, part {{ post.part }}</p>
+<h1>{{ post.title }}</h1>
+<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %} · {{ post.date_human }} · Prices updated {{ checked_human }}</p>
+<p class="lede">Part 1 listed six ways to cut an LLM bill. This time we took one real, popular open-source agent and looked for wasted tokens line by line. The biggest finding was a caching miss caused by two prompts that differ by two quote marks.</p>
+<p class="series">Part {{ post.part }} of a series on spending less per token. Read <a href="{{ base }}/blog/token-saving-basics/">part 1: six token-saving techniques</a> first if you're new to caching.</p>
+</div></section>
+
+<section class="band tight" id="project" data-toc="The project"><div class="wrap">
+<h2>The project and how we checked it</h2>
+<p><a href="https://github.com/assafelovic/gpt-researcher">GPT Researcher</a> is an open-source agent that searches the web, reads sources and writes a cited report. A single "detailed report" fires many model calls: planning, a subtopic list, research for each subtopic, draft section titles, the subtopic reports, an introduction and a conclusion. That makes it a good place to look for waste.</p>
+<p>We ran our free <a href="{{ base }}/skill/">LLM cost audit skill</a> on the code at commit <code>9d39a2f</code> (23 November 2026), then read every flagged call by hand. We did not run the agent, so token counts below are estimates from its default settings, and we say so wherever a number depends on them.</p>
+<p><b>What it already does well:</b> every call has an output limit, it records token usage from the API instead of guessing, and the main context is compressed to the most relevant chunks before it reaches the model. This is a careful codebase. The findings are the kind that survive code review, because none of them look like bugs.</p>
+</div></section>
+
+<section class="band tight" id="caching" data-toc="1. Caching miss"><div class="wrap">
+<h2>1. Two quote marks, no cache hit</h2>
+<p>For each subtopic, GPT Researcher makes two calls in a row with the same system message and the same research context: one drafts section titles, the next writes the subtopic report. That context is roughly 5,500 tokens (up to 5 chunks of about 1,000 characters for each of 4 search queries), well above the size where prompt caching kicks in.</p>
+<p>The second call should read that context from cache. It can't, because the two prompts open differently:</p>
+<div class="scroll"><table>
+<thead><tr><th>Call</th><th>First line of the user message</th></tr></thead>
+<tbody>
+<tr><td>Draft section titles</td><td><code>"Context":</code></td></tr>
+<tr><td>Subtopic report</td><td><code>Context:</code></td></tr>
+</tbody></table></div>
+<p>A cache only matches an identical prefix. Two quote marks are enough to make every token after them count as new. The same thing happens one level up: the introduction and the subtopic list both send the main research context, but one puts the context first and the other puts the task first.</p>
+<div class="ex">
+<p class="ex-h">The fix: start every prompt that shares context with the same bytes</p>
+<pre><code>PREFIX = 'Context:\n"{context}"\n\n'   # identical in every call that shares it
+
+titles_prompt = PREFIX.format(context=ctx) + titles_instructions
+report_prompt = PREFIX.format(context=ctx) + report_instructions</code></pre>
+</div>
+<p><b>What it's worth:</b> OpenAI lists GPT-6.1 and GPT-6.2 Sol at $2.00 per million input tokens and $0.10 cached. With four calls per detailed report able to reuse the context, that's about <b>$0.04 per report, or $42 per 1,000 reports</b>, from changing a few characters. An estimate, but the direction isn't in doubt.</p>
+</div></section>
+
+<section class="band tight" id="reasoning" data-toc="2. Reasoning effort"><div class="wrap">
+<h2>2. The big model, thinking hard, for small jobs</h2>
+<p>The subtopic list (three short headings by default) and the deep-research follow-up questions are generated with <code>reasoning_effort="high"</code>. On reasoning models, thinking tokens are billed as output, $10 per million on Sol, and high effort can spend thousands of them before writing a short list.</p>
+<p>Small jobs also go to the big model. Picking the agent persona at the start of a run, a tiny JSON answer, uses the Smart model. A cheaper Fast model is configured, but in the text pipeline it isn't used at all; only image prompts use it.</p>
+<p><b>The fix:</b> try <code>low</code> or <code>medium</code> effort for list-making, and send the persona choice to the Fast model. One trade-off: keep draft titles on the same model as the subtopic report, because after fix 1 the titles call is what fills the cache. We can't put a number on this without real traces, which is exactly why it's worth measuring.</p>
+</div></section>
+
+<section class="band tight" id="retries" data-toc="3. Paid retries"><div class="wrap">
+<h2>3. Ten paid retries for the same empty answer</h2>
+<p>When a reasoning model spends its entire token budget thinking, the reply comes back empty, and you're still billed for it. GPT Researcher's helper retries an empty reply up to 10 times (unless it's streaming to the browser), with the same prompt and the same budget. If the budget was too small the first time, it's usually too small the ninth time too.</p>
+<div class="ex">
+<p class="ex-h">The fix: retry once, with more room</p>
+<pre><code>if not response and attempt == 1:
+    max_tokens *= 2            # or lower reasoning_effort
+    continue
+raise EmptyResponse()</code></pre>
+</div>
+<p>This is rare, but when it happens it costs up to ten times the call, and nobody notices because the run eventually succeeds or fails quietly.</p>
+</div></section>
+
+<section class="band tight" id="tracking" data-toc="4. Cost tracking"><div class="wrap">
+<h2>4. The cost tracker shows the wrong numbers</h2>
+<p>GPT Researcher reports what each run cost, which is great. But the price table it uses has drifted:</p>
+<ul>
+<li>Cached tokens are priced at 50% off. On GPT-6.x Sol the cached rate is 95% off, so the tracker shows cached input at ten times its real cost, and a caching fix would barely move the number users see.</li>
+<li><code>gpt-6.2-sol</code> isn't in the table, so it falls back to $5 / $15 per million instead of $2 / $10.</li>
+<li>There are no Claude 5.x prices at all.</li>
+</ul>
+<p>A tracker that's off by 2× to 10× is worse than none, because people optimise against it. If your app shows costs, load prices from a file you update, and check the cache rate per model.</p>
+</div></section>
+
+<section class="band tight" id="gateway" data-toc="5. Where to buy"><div class="wrap">
+<h2>5. Where the tokens are bought</h2>
+<p>GPT Researcher already reads <code>OPENAI_BASE_URL</code>, so changing where it buys tokens is one environment variable. {% if sol %}Today SayGM lists GPT-6.2 Sol at {{ sol.f.sg_in }} input and {{ sol.f.sg_out }} output per million tokens, against OpenAI's $2.00 and $10.00: about {{ sol_below }}% below list.{% endif %} The same caveat as always: on GPT, Claude and Gemini the model maker still processes the prompt whichever gateway you use.</p>
+<p class="small">Disclosure: we earn a reward if you sign up to SayGM through our links. Your price is the same.</p>
+</div></section>
+
+<section class="band tight" id="summary" data-toc="Summary"><div class="wrap">
+<h2>Summary</h2>
+<div class="scroll"><table>
+<thead><tr><th>#</th><th>Finding</th><th>Fix</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Shared context, different first line, no cache hit</td><td>Identical prefix in every call that shares context</td><td>Minutes</td></tr>
+<tr><td>2</td><td>Big model and high reasoning effort on small jobs</td><td>Lower effort, send persona choice to the Fast model</td><td>Minutes, plus testing</td></tr>
+<tr><td>3</td><td>Up to 10 identical paid retries on empty replies</td><td>Retry once with more budget</td><td>Minutes</td></tr>
+<tr><td>4</td><td>Cost tracker 2× to 10× off</td><td>Update prices and cache rates</td><td>An hour</td></tr>
+<tr><td>5</td><td>Tokens bought at list price</td><td>Compare per-token prices</td><td>One env variable</td></tr>
+</tbody></table></div>
+<h3 style="margin-top:28px">Check your own project for the same things</h3>
+<ul>
+<li>Find calls that send the same large context and diff the first few hundred characters of their prompts.</li>
+<li>Search for <code>reasoning_effort</code> and your big model's name, and ask whether each task really needs them.</li>
+<li>Read your retry loop: does a retry change anything, or just pay again?</li>
+<li>Compare your cost dashboard with your provider's invoice for one day.</li>
+</ul>
+<p>Or let an agent do it: <a href="{{ base }}/skill/">the LLM cost audit skill</a> is free, runs locally and puts a dollar figure on each fix. This audit also showed us where the skill falls short: its scanner didn't recognise calls made through LangChain and the project's own wrapper, so we found these by reading the code. That's going into the next version.</p>
+<p class="small">Sources: <a href="https://github.com/assafelovic/gpt-researcher">GPT Researcher on GitHub</a> (Apache 2.0, commit 9d39a2f), <a href="https://developers.openai.com/api/docs/pricing">OpenAI API pricing</a>, <a href="https://saygm.com/models">SayGM prices</a>. Token counts are estimates from the project's default settings; we didn't run the agent.</p>
+</div></section>
+</article>
+{% endblock %}
