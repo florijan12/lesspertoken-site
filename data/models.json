@@ -27,7 +27,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "claude-opus-5-5",
@@ -53,7 +55,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "claude-sonnet-5-5",
@@ -79,7 +83,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "claude-haiku-5-5",
@@ -104,7 +110,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gpt-6-2-astra",
@@ -130,7 +138,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gpt-6-2-sol",
@@ -156,7 +166,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-4-neon",
@@ -183,7 +195,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-4-argon",
@@ -209,7 +223,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "gemini-3-8-flash",
@@ -234,7 +250,9 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "frontier",
+      "or_estimate": false
     },
     {
       "slug": "deepseek-v4-1-flash-1017",
@@ -263,7 +281,8 @@
       "id_verified": true,
       "tee": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "open"
     },
     {
       "slug": "deepseek-v4-1-flash",
@@ -287,11 +306,12 @@
         "in": 0.0507,
         "out": 0.2028,
         "cache": 0.001014,
-        "provider": "Baidu Qianfan (83% off)"
+        "provider": "Baidu (83% off)"
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "open"
     },
     {
       "slug": "qwen3-8-27b",
@@ -319,7 +339,8 @@
       "id_verified": true,
       "tee": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "open"
     },
     {
       "slug": "kimi-k3",
@@ -347,7 +368,8 @@
       "id_verified": true,
       "tee": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "open"
     },
     {
       "slug": "glm-5-3-flash",
@@ -375,7 +397,8 @@
       "id_verified": true,
       "tee": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25"
+      "openrouter_checked": "2026-11-25",
+      "tier": "open"
     }
   ]
 }
