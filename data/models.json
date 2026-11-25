@@ -127,9 +127,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 3.914,
-        "out": 19.57,
-        "cache": 0.1957
+        "in": 3.6668,
+        "out": 18.334,
+        "cache": 0.18334
       },
       "openrouter": {
         "in": 8.0,
@@ -155,9 +155,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.339,
-        "out": 6.695,
-        "cache": 0.06695
+        "in": 0.824,
+        "out": 4.12,
+        "cache": 0.0412
       },
       "openrouter": {
         "in": 2.0,
@@ -384,9 +384,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.128235,
-        "out": 0.42745,
-        "cache": 0.025647
+        "in": 0.1236,
+        "out": 0.412,
+        "cache": 0.02472
       },
       "openrouter": {
         "in": 0.0356,
