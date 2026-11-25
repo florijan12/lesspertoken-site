@@ -264,7 +264,7 @@ def main():
         faq_item("What are the best OpenRouter alternatives?",
                  "It depends on what you need. SayGM for the lowest prices on Claude and GPT, OpenRouter itself for the widest catalogue, Requesty for EU data residency, Venice for privacy-first use with end-to-end encrypted open models, and DeepInfra or Together AI for open models at volume or fine-tuning."),
         faq_item("Does SayGM have a free tier?", "No. There is also no subscription and no top-up fee. You pay per token."),
-        faq_item("Does SayGM work with my existing code?",
+        faq_item("Does SayGM work with existing code?",
                  "Yes. Point your OpenAI SDK at https://api.saygm.com/v1, or your Anthropic or Gemini SDK at https://api.saygm.com, and use a SayGM key.",
                  "Yes. Point your OpenAI SDK at <code>https://api.saygm.com/v1</code>, or your Anthropic or Gemini SDK at <code>https://api.saygm.com</code>, and use a SayGM key."),
         faq_item("Do you earn money from this page?", "Yes. SayGM rewards us when someone signs up through our links and adds credit. Your price is the same either way."),
@@ -300,7 +300,7 @@ def main():
         if m["cheaper"]:
             q1 = (f"Of the options we compare, SayGM: {m['f']['sg_in']} input and {m['f']['sg_out']} output per million tokens. "
                   f"That is {m['save']}% less than OpenRouter after its card fee{below_list}.")
-            q2 = (f"How much would I save on {m['name']} at 10M input and 2M output tokens a month?",
+            q2 = (f"How much would you save on {m['name']} at 10M input and 2M output tokens a month?",
                   f"About {money(o - s)} a month: {money(o)} on OpenRouter against {money(s)} on SayGM.")
         else:
             q1 = (f"Right now, OpenRouter's cheapest provider: {m['f']['or_in']} input and {m['f']['or_out']} output per million tokens "
