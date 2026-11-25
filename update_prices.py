@@ -80,9 +80,10 @@ def or_cheapest(model_id):
     for ep in d.get("endpoints") or []:
         pr = ep.get("pricing") or {}
         if ep.get("status") is not None and ep["status"] < 0:
+            print(f"  skipped {ep.get('provider_name')}: status {ep['status']}")
             continue  # provider currently down
-        disc = float(pr.get("discount") or 0)
-        f = lambda k: None if pr.get(k) in (None, "") else round(float(pr[k]) * 1e6 * (1 - disc), 6)
+        disc = float(pr.get("discount") or 0)  # informational: listed prices already include it
+        f = lambda k: None if pr.get(k) in (None, "") else round(float(pr[k]) * 1e6, 6)
         i, o = f("prompt"), f("completion")
         if not i or not o:
             continue
