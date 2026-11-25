@@ -3,6 +3,7 @@ name: Refresh prices and deploy
 on:
   schedule:
     - cron: "17 4 * * *"   # every day at 04:17 UTC
+    - cron: "43 10 * * *"  # backup run at 10:43 UTC, in case GitHub skips the first
   workflow_dispatch:        # "Run workflow" button in the Actions tab
     inputs:
       force:
