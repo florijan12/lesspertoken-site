@@ -188,6 +188,11 @@ POSTS = [
      "title": "How to cut your LLM API bill: 6 token-saving techniques with examples",
      "short": "6 ways to cut your LLM API bill",
      "description": "Prompt caching, model routing, shorter outputs, batch jobs, trimmed context and the right gateway: six ways to spend fewer dollars per token, with worked examples."},
+    {"slug": "gpt-researcher-cost-audit", "template": "posts/gpt-researcher-audit.html", "part": 2,
+     "date": "2026-11-25",
+     "title": "We audited GPT Researcher's LLM calls: a caching miss from two quote marks, and 4 other leaks",
+     "short": "Auditing GPT Researcher's token use",
+     "description": "A line-by-line cost audit of the open-source GPT Researcher agent: a prompt caching miss, high reasoning effort on small jobs, paid retries and a drifting cost tracker, with fixes."},
 ]
 
 
@@ -332,6 +337,8 @@ def main():
 
     # ---- blog ----
     ex = token_examples(by_slug, fee)
+    sol = by_slug.get("gpt-6-2-sol")
+    sol_below = round((1 - (MIX_IN * sol["saygm"]["in"] + MIX_OUT * sol["saygm"]["out"]) / (MIX_IN * sol["list"]["in"] + MIX_OUT * sol["list"]["out"])) * 100) if sol else None
     refs = site.get("referral_urls", {})
     with_ref = lambda key: dict(site, referral_url=refs.get(key, site["referral_url"]))
     blog_common = {k: v for k, v in common.items() if k != "calc"}
@@ -353,7 +360,7 @@ def main():
         d = out / "blog" / p["slug"]
         d.mkdir(parents=True)
         (d / "index.html").write_text(env.get_template(p["template"]).render(
-            **blog_common, calc=False, page=ppage, post=p, posts=POSTS, ex=ex))
+            **blog_common, calc=False, page=ppage, post=p, posts=POSTS, ex=ex, sol=sol, sol_below=sol_below))
     bpage = {"title": f"Token-saving blog | {site['brand']}",
              "description": "Practical ways to cut LLM API costs: caching, routing, batching and pricing, with worked examples.",
              "og_title": f"{site['brand']} blog: spend less per token", "url": domain + "/blog/",
