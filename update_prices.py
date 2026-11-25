@@ -7,7 +7,9 @@
   python update_prices.py --dry-run   # show changes without writing
 
 Set SAYGM_API_KEY if SayGM's /v1/models asks for a key. OpenRouter's list is public.
-Prices that move by more than 60% are skipped as a safety check; pass --force to accept them.
+Prices that move by more than 60% are held as a safety check: that model keeps its last
+confirmed prices (labelled with their date on the site) and the rest still update.
+Pass --force to accept every move.
 """
 import argparse, datetime as dt, json, os, pathlib, re, sys, urllib.request
 
@@ -74,7 +76,8 @@ def or_cheapest(model_id):
     """Cheapest OpenRouter provider for an open model, from the per-provider endpoints list.
 
     The summary price in /models is not always the cheapest provider, so for open models we
-    read every endpoint and pick the one with the lowest cost for a 10M in + 2M out month."""
+    read every endpoint and pick the one with the lowest cost for a 10M in + 2M out month.
+    Listed endpoint prices already include any provider discount."""
     d = get_json(f"https://openrouter.ai/api/v1/models/{model_id}/endpoints").get("data") or {}
     best = None
     for ep in d.get("endpoints") or []:
@@ -82,7 +85,7 @@ def or_cheapest(model_id):
         if ep.get("status") is not None and ep["status"] < 0:
             print(f"  skipped {ep.get('provider_name')}: status {ep['status']}")
             continue  # provider currently down
-        disc = float(pr.get("discount") or 0)  # informational: listed prices already include it
+        disc = float(pr.get("discount") or 0)  # informational only
         f = lambda k: None if pr.get(k) in (None, "") else round(float(pr[k]) * 1e6, 6)
         i, o = f("prompt"), f("completion")
         if not i or not o:
@@ -128,23 +131,35 @@ def main():
         return
 
     changed, warnings, problems = [], [], []
+    today = dt.date.today().isoformat()
 
     def apply(m, side, new):
+        """Apply one gateway's prices for a model, all or nothing.
+
+        If any price on this side moved more than 60%, none of them change: the model keeps its
+        last confirmed prices, labelled with that date on the site, and every other model still updates."""
         if not new or new["in"] is None or new["out"] is None:
             problems.append(f"{m['name']}: no {side} price found in API entry")
             return
-        old = m[side]
+        old, held, diffs = m[side], [], []
         for k in ("in", "out", "cache"):
-            nv = new.get(k)
-            if nv is None:
+            nv, ov = new.get(k), old.get(k)
+            if nv is None or ov == nv:
                 continue
-            ov = old.get(k)
             if ov and not a.force and abs(nv - ov) / ov > 0.6:
-                problems.append(f"{m['name']} {side}.{k}: {ov} -> {nv} held back (moved >60%; check it, then run with --force)")
-                continue
-            if ov != nv:
-                changed.append(f"{m['name']} {side}.{k}: {ov} -> {nv}")
-                old[k] = nv
+                held.append(f"{k} {ov} -> {nv}")
+            diffs.append((k, ov, nv))
+        conf = f"{side}_checked"
+        if held:
+            m.setdefault(conf, data["checked"])
+            warnings.append(f"{m['name']} {side} held at prices from {m[conf]} ({'; '.join(held)}); check it, then run with --force")
+            return
+        for k, ov, nv in diffs:
+            changed.append(f"{m['name']} {side}.{k}: {ov} -> {nv}")
+            old[k] = nv
+        if new.get("provider"):
+            old["provider"] = new["provider"]
+        m[conf] = today
 
     for m in data["models"]:
         e = sg_by.get(m["saygm_id"])
@@ -167,7 +182,6 @@ def main():
                     problems.append(f"{m['name']}: OpenRouter provider list failed ({ex})")
                 if cheap:
                     print(f"{m['name']}: cheapest OpenRouter provider {cheap['provider']} {cheap['in']}/{cheap['out']}")
-                    m["openrouter"]["provider"] = cheap.pop("provider")
                     new = cheap
             apply(m, "openrouter", new)
             m["or_estimate"] = False if m["maker"] != "Open models" else m.get("or_estimate", True)
@@ -176,14 +190,14 @@ def main():
 
     print("\n".join(changed) or "No price changes.")
     if warnings:
-        print("\nNotes:\n  " + "\n  ".join(warnings))
+        print("\nHELD (kept last confirmed prices, labelled on the site):\n  " + "\n  ".join(warnings))
     if problems:
         # Never stamp today's date on prices we couldn't confirm. Nothing is saved, the run fails,
         # and the live site keeps its previous (honest) date until someone looks.
         print("\nNOT SAVED. These prices could not be confirmed:\n  " + "\n  ".join(problems), file=sys.stderr)
         sys.exit(1)
     if not a.dry_run:
-        data["checked"] = dt.date.today().isoformat()
+        data["checked"] = today
         DATA.write_text(json.dumps(data, indent=2) + "\n")
         print(f"\nSaved {DATA.name}, checked = {data['checked']}")
 

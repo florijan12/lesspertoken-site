@@ -50,6 +50,16 @@ def enrich(m, fee):
     return m
 
 
+def stale_notes(models, checked):
+    """Label any gateway price that the daily check held back, with the date it was last confirmed."""
+    names = {"saygm": "SayGM", "openrouter": "OpenRouter"}
+    for m in models:
+        old = [f"{names[s]} price last confirmed {human_date(m[s + '_checked'])}"
+               for s in names if m.get(s + "_checked") and m[s + "_checked"] < checked]
+        if old:
+            m["note"] = " ".join(filter(None, [m.get("note"), "; ".join(old) + "."]))
+
+
 def jsonld(graph):
     return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False).replace("</", "<\\/")
 
@@ -198,6 +208,7 @@ def main():
 
     fee = data["openrouter_card_fee"]
     models = [enrich(m, fee) for m in data["models"]]
+    stale_notes(models, data["checked"])
     by_slug = {m["slug"]: m for m in models}
     groups = [{"name": g, "models": [m for m in models if m["maker"] == g]} for g in GROUP_ORDER]
     groups = [g for g in groups if g["models"]]
@@ -246,7 +257,7 @@ def main():
                  "SayGM itself can't read your prompts, and prompts are never logged. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential -tee models keep prompts sealed end to end.",
                  "SayGM itself can't read your prompts, and prompts are never logged. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential <code>-tee</code> models keep prompts sealed end to end."),
         faq_item("What are the best OpenRouter alternatives?",
-                 "It depends on what you need. SayGM for the lowest prices on Claude and many open models, OpenRouter itself for the widest catalogue, Requesty for EU data residency, Venice for privacy-first use with end-to-end encrypted open models, and DeepInfra or Together AI for open models at volume or fine-tuning."),
+                 "It depends on what you need. SayGM for the lowest prices on Claude and GPT, OpenRouter itself for the widest catalogue, Requesty for EU data residency, Venice for privacy-first use with end-to-end encrypted open models, and DeepInfra or Together AI for open models at volume or fine-tuning."),
         faq_item("Does SayGM have a free tier?", "No. There is also no subscription and no top-up fee. You pay per token."),
         faq_item("Does SayGM work with my existing code?",
                  "Yes. Point your OpenAI, Anthropic or Gemini SDK at https://api.saygm.com/v1 and use a SayGM key.",
