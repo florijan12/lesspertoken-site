@@ -48,21 +48,8 @@
 
 {% if alt %}
 <section class="band tight" id="alternatives" data-toc="Alternatives"><div class="wrap">
-<h2>SayGM vs other OpenRouter alternatives</h2>
-<p>Cost of {{ alt.workload }} on {{ alt.rows|length }} gateways. The cheapest option for each model is highlighted.</p>
-<div class="scroll">
-<table class="alt">
-<thead><tr><th>Gateway</th>{% for m in alt.cols %}<th class="n">{{ m.name }}</th>{% endfor %}</tr></thead>
-<tbody>
-{% for r in alt.rows %}
-<tr><td><b>{{ r.name }}</b></td>{% for c in r.cells %}<td class="n{% if c.best %} best{% endif %}">{% if c.cost is not none %}<span class="cost">{{ c.cost_f }}{{ c.mark }}</span><span class="pp">{{ c.price_f }}</span>{% else %}<span class="na">{{ c.text }}</span>{% endif %}</td>{% endfor %}</tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-<p class="small" style="margin-top:10px">Input / output price per million tokens under each cost. SayGM and OpenRouter prices from our check on {{ checked_human }}, OpenRouter including its 5.5% card fee. {% for o in alt.own %}{{ o.name }} prices from <a href="{{ o.url }}">{{ o.label }}</a>, checked {{ o.date }}. {% endfor %}{{ alt.via|join(", ") }} prices from <a href="{{ alt.source.url }}">{{ alt.source.publisher }}'s own comparison</a> of {{ alt.source_date }}, based on each provider's pricing page; SayGM published that comparison, so check providers' pages before you decide.{% for n in alt.notes %} {{ n }}{% endfor %}</p>
+<h2>How OpenRouter alternatives differ</h2>
 
-<h3 style="margin-top:28px">How the gateways differ</h3>
 <table class="stack">
 <thead><tr><th>Gateway</th><th>Pricing</th><th>Models</th><th>Privacy</th><th>Best for</th></tr></thead>
 <tbody>
