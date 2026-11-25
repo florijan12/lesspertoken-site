@@ -70,6 +70,29 @@ def saygm_prices(e):
     return find_prices(e)
 
 
+def or_cheapest(model_id):
+    """Cheapest OpenRouter provider for an open model, from the per-provider endpoints list.
+
+    The summary price in /models is not always the cheapest provider, so for open models we
+    read every endpoint and pick the one with the lowest cost for a 10M in + 2M out month."""
+    d = get_json(f"https://openrouter.ai/api/v1/models/{model_id}/endpoints").get("data") or {}
+    best = None
+    for ep in d.get("endpoints") or []:
+        pr = ep.get("pricing") or {}
+        if ep.get("status") is not None and ep["status"] < 0:
+            continue  # provider currently down
+        disc = float(pr.get("discount") or 0)
+        f = lambda k: None if pr.get(k) in (None, "") else round(float(pr[k]) * 1e6 * (1 - disc), 6)
+        i, o = f("prompt"), f("completion")
+        if not i or not o:
+            continue
+        cost = 10 * i + 2 * o
+        if best is None or cost < best[0]:
+            best = (cost, {"in": i, "out": o, "cache": f("input_cache_read"),
+                           "provider": f"{ep.get('provider_name') or ep.get('name')}" + (f" ({disc:.0%} off)" if disc else "")})
+    return best[1] if best else None
+
+
 def items(payload):
     return payload.get("data", payload if isinstance(payload, list) else [])
 
@@ -134,7 +157,18 @@ def main():
             problems.append(f"{m['name']}: SayGM ID '{m['saygm_id']}' not found (run --list)")
         e = or_by.get(m["openrouter_id"])
         if e:
-            apply(m, "openrouter", find_prices(e))
+            new = find_prices(e)
+            if m["maker"] == "Open models":
+                try:
+                    cheap = or_cheapest(m["openrouter_id"])
+                except Exception as ex:
+                    cheap = None
+                    problems.append(f"{m['name']}: OpenRouter provider list failed ({ex})")
+                if cheap:
+                    print(f"{m['name']}: cheapest OpenRouter provider {cheap['provider']} {cheap['in']}/{cheap['out']}")
+                    m["openrouter"]["provider"] = cheap.pop("provider")
+                    new = cheap
+            apply(m, "openrouter", new)
             m["or_estimate"] = False if m["maker"] != "Open models" else m.get("or_estimate", True)
         else:
             problems.append(f"{m['name']}: OpenRouter ID '{m['openrouter_id']}' not found (run --list)")
