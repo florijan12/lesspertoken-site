@@ -45,7 +45,7 @@ h1{{font-size:68px;line-height:1.02;letter-spacing:-.03em;margin:28px 0 30px;fon
 .foot{{margin-top:auto;font-size:20px;color:#5b6673}}
 </style></head><body>
 <div class="top">{fav}{site['brand']}</div>
-<h1>SayGM vs OpenRouter:<br>up to {max(round((1-(10*m['saygm']['in']+2*m['saygm']['out'])/((10*m['openrouter']['in']+2*m['openrouter']['out'])*(1+fee)))*100) for m in data['models'])}% cheaper</h1>
+<h1>SayGM vs OpenRouter:<br>Claude for {min(round((1-(10*m['saygm']['in']+2*m['saygm']['out'])/((10*m['openrouter']['in']+2*m['openrouter']['out'])*(1+fee)))*100) for m in data['models'] if m['maker'] == 'Anthropic')}% less</h1>
 {bars}
 <div class="foot">Monthly cost at 10M input + 2M output tokens, incl. OpenRouter's 5.5% fee. Prices {data['checked']}.</div>
 </body></html>"""

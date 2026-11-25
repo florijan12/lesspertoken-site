@@ -260,12 +260,13 @@ def main():
                  "It depends on what you need. SayGM for the lowest prices on Claude and GPT, OpenRouter itself for the widest catalogue, Requesty for EU data residency, Venice for privacy-first use with end-to-end encrypted open models, and DeepInfra or Together AI for open models at volume or fine-tuning."),
         faq_item("Does SayGM have a free tier?", "No. There is also no subscription and no top-up fee. You pay per token."),
         faq_item("Does SayGM work with my existing code?",
-                 "Yes. Point your OpenAI, Anthropic or Gemini SDK at https://api.saygm.com/v1 and use a SayGM key.",
-                 "Yes. Point your OpenAI, Anthropic or Gemini SDK at <code>https://api.saygm.com/v1</code> and use a SayGM key."),
+                 "Yes. Point your OpenAI SDK at https://api.saygm.com/v1, or your Anthropic or Gemini SDK at https://api.saygm.com, and use a SayGM key.",
+                 "Yes. Point your OpenAI SDK at <code>https://api.saygm.com/v1</code>, or your Anthropic or Gemini SDK at <code>https://api.saygm.com</code>, and use a SayGM key."),
         faq_item("Do you earn money from this page?", "Yes. SayGM rewards us when someone signs up through our links and adds credit. Your price is the same either way."),
     ]
     url = domain + "/"
-    title_h = f"SayGM vs OpenRouter: same models, up to {max_save}% cheaper"
+    claude_save = min(m["save"] for m in models if m["maker"] == "Anthropic")
+    title_h = f"SayGM vs OpenRouter: Claude for {claude_save}% less, same models"
     page = {
         "title": "SayGM vs OpenRouter (2026): Cheaper OpenRouter Alternative",
         "description": f"SayGM vs OpenRouter prices for Claude, GPT-6.2, Gemini 4 Neon, DeepSeek and more. Claude costs about {son['save'] if son else 51}% less on SayGM after OpenRouter's 5.5% fee.",
@@ -278,7 +279,7 @@ def main():
     }
     noted = [m for m in models if m.get("note")]
     (out / "index.html").write_text(env.get_template("compare.html").render(
-        **common, page=page, groups=groups, max_save=max_save, faq=faq, noted=noted,
+        **common, page=page, groups=groups, max_save=max_save, claude_save=claude_save, faq=faq, noted=noted,
         bench_rows=brows, alt=alt, js_data=js_data("claude-sonnet-5-5")))
 
     # ---- one page per model ----
