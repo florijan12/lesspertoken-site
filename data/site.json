@@ -1,11 +1,17 @@
 {
   "brand": "LessPerToken",
   "domain": "https://lesspertoken.com",
-  "referral_url": "https://saygm.com/r/iyo4pxly",
+  "referral_url": "https://saygm.com/r/poweruser",
   "author": {
     "name": "",
     "bio": "",
     "url": ""
   },
-  "test_location": ""
+  "test_location": "",
+  "referral_urls": {
+    "site": "https://saygm.com/r/poweruser",
+    "blog": "https://saygm.com/r/handle1",
+    "skill": "https://saygm.com/r/myname",
+    "x": "https://saygm.com/r/iyo4pxly"
+  }
 }
