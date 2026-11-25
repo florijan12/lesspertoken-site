@@ -1,6 +1,6 @@
 {% extends "_base.html" %}
 {% import "_macros.html" as mx %}
-{% block nav %}<a href="{{ base }}/#prices">All models</a><a href="#calculator">Calculator</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a>{% endblock %}
+{% block nav %}<a href="{{ base }}/#prices">All models</a><a href="#calculator">Calculator</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
 {% block cta_title %}{% if m.cheaper %}Use {{ m.name }} for {{ m.save }}% less{% else %}Compare {{ m.name }} prices before you switch{% endif %}{% endblock %}
 {% block main %}
 <section class="band" id="overview" data-toc="Prices"><div class="wrap">

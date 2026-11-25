@@ -1,0 +1,51 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
+{% block cta_title %}Found the waste? Pay less for the tokens you keep{% endblock %}
+{% block main %}
+<section class="band" id="top" data-toc="Intro"><div class="wrap">
+<h1>LLM cost audit: a free AI skill that finds wasted tokens</h1>
+<p class="lede">Point Claude (or any agent that supports Agent Skills) at your project and ask "why is our LLM bill so high?". It scans your code's API calls, flags the waste and tells you in dollars what each fix would save.</p>
+<p><a class="btn" href="{{ base }}/llm-cost-audit.skill" download>Download llm-cost-audit.skill</a></p>
+<p class="small">Version 1.1 · MIT license · Python 3.8+, no packages · Prices inside checked {{ skill_prices_human }}</p>
+</div></section>
+
+<section class="band tight" id="what" data-toc="What it does"><div class="wrap">
+<h2>What it does</h2>
+<ul>
+<li><b>Scans</b> the codebase for Anthropic, OpenAI, Gemini, LiteLLM and Vercel AI SDK calls.</li>
+<li><b>Flags</b> likely waste: no caching, timestamps that break the cache, unbounded chat history, frontier models on simple tasks, missing output limits, per-item loops that could be batch jobs.</li>
+<li><b>Estimates</b> the monthly saving of each fix from real per-token prices.</li>
+<li><b>Writes a report</b> ordered by dollars saved, with before and after code, and applies the fixes if you ask.</li>
+</ul>
+<p>It covers the six techniques from <a href="{{ base }}/blog/token-saving-basics/">How to cut your LLM API bill</a>: caching, routing to a smaller model, shorter outputs, batch APIs, trimming context and where you buy the tokens.</p>
+</div></section>
+
+<section class="band tight" id="install" data-toc="Install"><div class="wrap">
+<h2>Install</h2>
+<ul>
+<li><b>Claude apps:</b> download the file above and upload it under Skills in Claude's settings.</li>
+<li><b>Claude Code:</b> the .skill file is a zip. Unzip it and copy the <code>llm-cost-audit</code> folder into <code>~/.claude/skills/</code> (all projects) or <code>.claude/skills/</code> in one project.</li>
+<li><b>Other agents:</b> any agent that reads <code>SKILL.md</code> skills can use the unzipped folder as is.</li>
+</ul>
+<p>Then ask: "audit our LLM costs".</p>
+</div></section>
+
+<section class="band tight" id="example" data-toc="Example"><div class="wrap">
+<h2>Example</h2>
+<p>A coding agent on Claude Sonnet 5.5 with 50M input and 2M output tokens a month. The scan found a timestamp at the top of the system prompt that broke caching on every call.</p>
+<div class="scroll"><table>
+<thead><tr><th>Step</th><th class="n">Monthly cost</th></tr></thead>
+<tbody>
+<tr><td>Bill today, list price</td><td class="n">$120.00</td></tr>
+<tr><td>Buy the same tokens via SayGM</td><td class="n">$61.80</td></tr>
+<tr><td>Shorter outputs</td><td class="n">$58.71</td></tr>
+<tr class="you"><td>Caching fixed (85% of input from cache)</td><td class="n">$17.12 <span class="save-tag">−86%</span></td></tr>
+</tbody></table></div>
+<p class="small">Prices from the snapshot inside the skill, checked {{ skill_prices_human }}. Gateway prices change often, and on some open models OpenRouter is currently cheaper; the estimator says so when that's the case.</p>
+</div></section>
+
+<section class="band tight" id="disclosure" data-toc="Disclosure"><div class="wrap">
+<h2>Disclosure</h2>
+<p>{{ site.brand }} earns a reward when people sign up to SayGM through its links. The skill reports gateway prices neutrally next to list prices and recommends direct or sealed routes for secrets and client data. Every other technique saves money wherever you buy your tokens.</p>
+</div></section>
+{% endblock %}
