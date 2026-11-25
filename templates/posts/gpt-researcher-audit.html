@@ -87,6 +87,18 @@ raise EmptyResponse()</code></pre>
 <tr><td>4</td><td>Cost tracker 2× to 10× off</td><td>Update prices and cache rates</td><td>An hour</td></tr>
 <tr><td>5</td><td>Tokens bought at list price</td><td>Compare per-token prices</td><td>One env variable</td></tr>
 </tbody></table></div>
+<h3 style="margin-top:28px">What it adds up to</h3>
+<p>Our estimate for one detailed report (three subtopics) with the default settings, counting model calls only:</p>
+<div class="scroll"><table>
+<thead><tr><th>Step</th><th class="n">Per report</th><th class="n">Per 1,000 reports</th></tr></thead>
+<tbody>
+<tr><td>As it runs today</td><td class="n">$0.36</td><td class="n">$364</td></tr>
+<tr><td>+ Fix 1: shared prefix, context read from cache</td><td class="n">$0.32</td><td class="n">$322 <span class="save-tag">−12%</span></td></tr>
+<tr><td>+ Fix 2: lower effort on the subtopic list, persona on the Fast model</td><td class="n">$0.29</td><td class="n">$294 <span class="save-tag">−19%</span></td></tr>
+<tr class="you"><td>+ Fix 5: GPT-6.2 Sol bought through SayGM</td><td class="n">$0.23</td><td class="n">$227 <span class="save-tag">−38%</span></td></tr>
+</tbody></table></div>
+<p>So the code changes alone save about a fifth, for less than an hour of work, and where the tokens are bought roughly doubles that. Fixes 3 and 4 aren't counted: retries only cost money when replies come back empty, and a better tracker shows costs rather than cutting them.</p>
+<p class="small">How we got these numbers: about 5,500 tokens of research context per researcher; 14 calls per report (persona, 4 sets of search queries, introduction, subtopic list, conclusion, and titles plus a report for each subtopic); output including reasoning tokens of roughly 650 to 3,100 tokens per call, with high effort on the subtopic list assumed to use about 2,400 more thinking tokens than low. Prices: GPT-6.1/6.2 Sol $2.00 input, $0.10 cached, $10.00 output (OpenAI); GPT-5.4 and GPT-5.4 mini from the project's own price table; SayGM's GPT-6.2 Sol price on 25 November 2026. Search and embedding costs are left out. Real numbers depend on the topic, so treat this as an order of magnitude and measure on your own runs.</p>
 <h3 style="margin-top:28px">Check your own project for the same things</h3>
 <ul>
 <li>Find calls that send the same large context and diff the first few hundred characters of their prompts.</li>
