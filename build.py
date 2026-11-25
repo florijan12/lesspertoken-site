@@ -331,7 +331,10 @@ def main():
 
     # ---- blog ----
     ex = token_examples(by_slug, fee)
+    refs = site.get("referral_urls", {})
+    with_ref = lambda key: dict(site, referral_url=refs.get(key, site["referral_url"]))
     blog_common = {k: v for k, v in common.items() if k != "calc"}
+    blog_common["site"] = with_ref("blog")
     for p in POSTS:
         p["url"] = f"{domain}/blog/{p['slug']}/"
         p["date_human"] = human_date(p["date"])
@@ -369,7 +372,7 @@ def main():
                                 "author": {"@type": "Organization", "name": site["brand"]}, "url": surl}])}
     (out / "skill").mkdir()
     (out / "skill" / "index.html").write_text(env.get_template("skill.html").render(
-        **blog_common, calc=False, page=spage, skill_prices_human=human_date("2026-11-24")))
+        **{**blog_common, "site": with_ref("skill")}, calc=False, page=spage, skill_prices_human=human_date("2026-11-24")))
 
     # ---- sitemap, robots, static files ----
     urls = ([domain + "/"] + [f"{domain}/models/{m['slug']}/" for m in models]
