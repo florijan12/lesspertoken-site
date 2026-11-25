@@ -65,3 +65,42 @@
 </div>
 <p class="small" style="margin-top:10px">Median of {{ bench.n }} identical requests per model and gateway, sent on {{ bench.date_human }}{% if bench.location %} from {{ bench.location }}{% endif %}. Cost / 100 is the price of 100 such requests: the amount billed where the gateway reports it, otherwise tokens used × published price, including OpenRouter's 5.5% card fee.</p>
 {% endmacro %}
+
+{% macro switch(site, model_id, model_name, anthropic) %}
+<section class="band tight" id="switch" data-toc="Switch"><div class="wrap cols">
+<div>
+<h2>Switch in two minutes</h2>
+<ol class="steps">
+<li><b>Sign up</b> with email or Google. New accounts start with a small credit, so your first requests work with no card on file.</li>
+<li><b>Create an API key</b> under API keys in the dashboard.</li>
+<li><b>Change one line:</b> the base URL. {% if anthropic %}Anthropic SDK: <code>https://api.saygm.com</code>. OpenAI SDK: <code>https://api.saygm.com/v1</code>.{% else %}OpenAI SDK: <code>https://api.saygm.com/v1</code>. Anthropic or Gemini SDK: <code>https://api.saygm.com</code>.{% endif %}</li>
+<li><b>Top up when the starting credit runs out,</b> by card, USDC or TAO. No subscription.</li>
+</ol>
+<div class="hi-line"><a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Get a SayGM key</a><span class="small">Keep OpenRouter as your backup.</span></div>
+</div>
+<div>
+<div class="codehead"><span>Python{% if anthropic %}, Anthropic SDK{% else %}, OpenAI SDK{% endif %}</span><button type="button" id="copy">Copy</button></div>
+<pre><code id="code">{% if anthropic %}from anthropic import Anthropic
+
+client = Anthropic(
+    base_url="https://api.saygm.com",  # the one line you change
+    api_key="YOUR_SAYGM_KEY",
+)
+msg = client.messages.create(
+    model="{{ model_id }}",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello"}],
+){% else %}from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.saygm.com/v1",  # the one line you change
+    api_key="YOUR_SAYGM_KEY",
+)
+resp = client.chat.completions.create(
+    model="{{ model_id }}",
+    messages=[{"role": "user", "content": "Hello"}],
+){% endif %}</code></pre>
+<p class="small" style="margin-top:8px">{{ model_name }} on SayGM. Other model IDs are in the <a href="https://api.saygm.com/v1/models">models list</a>; setup details in <a href="https://docs.saygm.com/getting-started/quickstart/">SayGM's quickstart</a>.</p>
+</div>
+</div></section>
+{% endmacro %}

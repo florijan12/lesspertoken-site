@@ -26,6 +26,9 @@
 <p class="small" style="margin-top:10px">US dollars per million tokens, standard tier. “Not published” means the gateway lists no separate cache price.{% if m.note %} {{ m.note }}{% endif %}{% if m.or_estimate %} †OpenRouter's price depends on which provider you route to.{% endif %}</p>
 </div></section>
 
+{{ mx.switch(site, m.saygm_id if m.id_verified else "MODEL_ID", m.name, m.maker == "Anthropic") }}
+
+
 {{ mx.calculator(site, "What would " ~ m.name ~ " cost you?") }}
 
 {% if bench_row %}
@@ -45,26 +48,6 @@
 {% endif %}
 </div>
 {{ mx.routes() }}
-</div></section>
-
-<section class="band tight" id="switch" data-toc="Switch"><div class="wrap cols">
-<div>
-<h2>Switch in two minutes</h2>
-<p>Change the base URL and key in your existing OpenAI, Anthropic or Gemini SDK code.{% if not m.id_verified %} Copy the exact {{ m.name }} model ID from the <a href="https://api.saygm.com/v1/models">models list</a>.{% endif %}</p>
-</div>
-<div>
-<div class="codehead"><span>Python</span><button type="button" id="copy">Copy</button></div>
-<pre><code id="code">from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://api.saygm.com/v1",
-    api_key="YOUR_SAYGM_KEY",
-)
-resp = client.chat.completions.create(
-    model="{% if m.id_verified %}{{ m.saygm_id }}{% else %}MODEL_ID{% endif %}",
-    messages=[{"role": "user", "content": "Hello"}],
-)</code></pre>
-</div>
 </div></section>
 
 <section class="band tight" id="faq" data-toc="FAQ"><div class="wrap">

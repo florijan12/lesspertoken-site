@@ -1,11 +1,11 @@
 {% extends "_base.html" %}
 {% import "_macros.html" as mx %}
-{% block nav %}<a href="#prices">Prices</a><a href="#calculator">Calculator</a><a href="#alternatives">Alternatives</a><a href="#privacy">Privacy</a><a href="#method">How we test</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
+{% block nav %}<a href="#prices">Prices</a><a href="#calculator">Calculator</a><a href="#alternatives">Alternatives</a><a href="#switch">Switch</a><a href="#privacy">Privacy</a><a href="#method">How we test</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
 {% block main %}
 <section class="band" id="overview" data-toc="Savings overview"><div class="wrap">
-<h1>SayGM vs OpenRouter: same models, up to {{ max_save }}% cheaper</h1>
+<h1>SayGM vs OpenRouter: Claude for {{ claude_save }}% less, same models</h1>
 <p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }} · <a href="#method">How we test</a></p>
-<p class="lede">SayGM works like OpenRouter: one API key for Claude, GPT, Gemini and open models, billed below list price through a gateway that can't read your prompts. Claude costs about half what it does on OpenRouter.</p>
+<p class="lede">Claude Fable, Opus, Sonnet and Haiku cost {{ claude_save }}% less on SayGM than on OpenRouter, every day, with the same models from Anthropic. SayGM works like OpenRouter: one API key for Claude, GPT, Gemini and open models, through a gateway that can't read your prompts.</p>
 <div class="hi-line">
 <a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Try SayGM</a>
 <span class="small">No subscription, no top-up fee.</span>
@@ -19,6 +19,9 @@
 <p class="small" style="margin-top:8px">The green number is how much less SayGM costs. <span id="chart-note"></span></p>
 </div>
 </div></section>
+
+{{ mx.switch(site, "claude-sonnet-5-5", "Claude Sonnet 5.5", true) }}
+
 
 <section class="band tight" id="prices" data-toc="Prices"><div class="wrap">
 <h2>Prices per million tokens</h2>
@@ -92,22 +95,6 @@
 <p>{% if bench %}<b>Speed, reliability and real cost</b> come from our own runs: the same prompts sent through both gateways with the same settings, recording time to first token, failed requests and the cost of each request.{% else %}We compare like for like: the same model, the same token counts and standard (non-batch) pricing on both sides. Savings use a 5:1 input-to-output mix without caching unless the calculator says otherwise.{% endif %}</p>
 </div>
 {% if bench %}<div style="margin-top:12px">{{ mx.bench_table(bench, bench_rows) }}</div>{% endif %}
-</div></section>
-
-<section class="band tight" id="switch" data-toc="Switch"><div class="wrap cols">
-<div>
-<h2>Switch in two minutes</h2>
-<p>Keep your code. Change the base URL and the API key, then pick a model from the <a href="https://api.saygm.com/v1/models">models list</a>. Works with the OpenAI, Anthropic and Gemini SDKs.</p>
-</div>
-<div>
-<div class="codehead"><span>Python</span><button type="button" id="copy">Copy</button></div>
-<pre><code id="code">from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://api.saygm.com/v1",
-    api_key="YOUR_SAYGM_KEY",
-)</code></pre>
-</div>
 </div></section>
 
 <section class="band tight" id="faq" data-toc="FAQ"><div class="wrap">
