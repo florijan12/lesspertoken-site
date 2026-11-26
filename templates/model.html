@@ -19,11 +19,12 @@
 <tbody>
 <tr><td>{% if m.or_estimate %}Reference list price{% else %}{{ m.maker }} list price{% endif %}</td><td class="n">{{ m.f.list_in }}</td><td class="n">{{ m.f.list_cache }}</td><td class="n">{{ m.f.list_out }}</td></tr>
 <tr><td>OpenRouter, incl. 5.5% fee{% if m.or_estimate %}†{% endif %}</td><td class="n">{{ m.f.or_in }}</td><td class="n">{{ m.f.or_cache }}</td><td class="n">{{ m.f.or_out }}</td></tr>
-<tr class="you"><td>SayGM</td><td class="n">{{ m.f.sg_in }}</td><td class="n">{{ m.f.sg_cache }}</td><td class="n">{{ m.f.sg_out }}</td></tr>
+{% for c in m.cloud_rows %}<tr><td>{{ c.name }}{% if c.region != "global" %} ({{ c.region }}){% endif %}</td><td class="n">{{ c.in }}</td><td class="n">{{ c.cache }}</td><td class="n">{{ c.out }}</td></tr>
+{% endfor %}<tr class="you"><td>SayGM</td><td class="n">{{ m.f.sg_in }}</td><td class="n">{{ m.f.sg_cache }}</td><td class="n">{{ m.f.sg_out }}</td></tr>
 </tbody>
 </table>
 </div>
-<p class="small" style="margin-top:10px">US dollars per million tokens, standard tier. “Not published” means the gateway lists no separate cache price.{% if m.note %} {{ m.note }}{% endif %}{% if m.or_estimate %} †OpenRouter's price depends on which provider you route to.{% endif %}</p>
+<p class="small" style="margin-top:10px">US dollars per million tokens, standard tier. “Not published” means the gateway lists no separate cache price.{% if m.cloud_rows %} Cloud prices are each cloud's cheapest standard endpoint{% if m.clouds_checked %}, checked {{ clouds_checked_human }}{% endif %}; regional endpoints usually cost 10% more.{% else %} We found no listing for it on AWS Bedrock, Google Vertex AI or Azure.{% endif %}{% if m.note %} {{ m.note }}{% endif %}{% if m.or_estimate %} †OpenRouter's price depends on which provider you route to.{% endif %}</p>
 </div></section>
 
 {% include "notes/" ~ m.slug ~ ".html" ignore missing with context %}

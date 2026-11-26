@@ -34,26 +34,26 @@
 
 <section class="band tight" id="prices" data-toc="Prices"><div class="wrap">
 <h2>Prices per million tokens</h2>
-<p>Input / output, in US dollars. OpenRouter prices include its 5.5% card fee. Click a model for cached-input prices and details.</p>
+<p>Input / output, in US dollars. OpenRouter prices include its 5.5% card fee. Big clouds shows the cheapest of AWS Bedrock, Google Vertex AI and Azure. Click a model for cached-input prices and every cloud.</p>
 <div class="controls">
 <div class="field"><label for="tbl-search">Find a model</label><input id="tbl-search" type="search" placeholder="Claude, GPT, Gemini…" autocomplete="off"></div>
 <div class="field"><label for="tbl-sort">Sort by</label><select id="tbl-sort"><option value="maker">Maker</option><option value="save">Biggest saving</option><option value="cheap">Cheapest on SayGM</option></select></div>
 </div>
 <div class="scroll">
 <table>
-<thead><tr><th>Model</th><th class="n">OpenRouter</th><th class="n">SayGM</th><th class="n">You save</th></tr></thead>
+<thead><tr><th>Model</th><th class="n">OpenRouter</th><th class="n">Big clouds</th><th class="n">SayGM</th><th class="n">You save</th></tr></thead>
 <tbody id="tbl-body">
 {% for g in groups %}
-<tr class="grp"><th colspan="4">{{ g.name }}{% if g.name == "Open models" %}†{% endif %}</th></tr>
+<tr class="grp"><th colspan="5">{{ g.name }}{% if g.name == "Open models" %}†{% endif %}</th></tr>
 {% for m in g.models %}
-<tr data-name="{{ m.name }}" data-save="{{ m.save }}" data-sg="{{ m.sg_blend }}"><td><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a>{% if m.note %}*{% endif %}{% if m.tag %} <span class="tag">{{ m.tag }}</span>{% endif %}</td><td class="n">{{ m.f.or_in }} / {{ m.f.or_out }}</td><td class="n">{{ m.f.sg_in }} / {{ m.f.sg_out }}</td><td class="n save{% if not m.cheaper %} worse{% endif %}">{% if m.cheaper %}{{ m.save }}%{% else %}none{% endif %}</td></tr>
+<tr data-name="{{ m.name }}" data-save="{{ m.save }}" data-sg="{{ m.sg_blend }}"><td><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a>{% if m.note %}*{% endif %}{% if m.tag %} <span class="tag">{{ m.tag }}</span>{% endif %}</td><td class="n">{{ m.f.or_in }} / {{ m.f.or_out }}</td><td class="n cloud">{% if m.cloud %}{{ m.cloud.in }} / {{ m.cloud.out }}<span class="where">{{ m.cloud.where }}</span>{% else %}<span class="na" title="Not found on AWS Bedrock, Google Vertex AI or Azure">—</span>{% endif %}</td><td class="n">{{ m.f.sg_in }} / {{ m.f.sg_out }}</td><td class="n save{% if not m.cheaper %} worse{% endif %}">{% if m.cheaper %}{{ m.save }}%{% else %}none{% endif %}</td></tr>
 {% endfor %}
 {% endfor %}
-<tr id="tbl-empty" style="display:none"><td colspan="4" class="empty">No model matches. Try “Claude” or “Gemini”.</td></tr>
+<tr id="tbl-empty" style="display:none"><td colspan="5" class="empty">No model matches. Try “Claude” or “Gemini”.</td></tr>
 </tbody>
 </table>
 </div>
-<p class="small" style="margin-top:10px">Saving on a typical 5:1 input-to-output mix, without caching.{% for m in noted %} *{{ m.note }}{% endfor %} †OpenRouter's price for open models depends on which provider you route to.</p>
+<p class="small" style="margin-top:10px">Saving on a typical 5:1 input-to-output mix, without caching.{% for m in noted %} *{{ m.note }}{% endfor %} †OpenRouter's price for open models depends on which provider you route to. Big clouds: standard tier, cheapest endpoint (global where offered; regional endpoints usually cost 10% more), before any committed-use discount; — means we found it on none of the three{% if clouds_checked_human %}, checked {{ clouds_checked_human }}{% endif %}. "You save" compares SayGM with OpenRouter.</p>
 </div></section>
 
 {{ mx.calculator(site, "What would you save?") }}
