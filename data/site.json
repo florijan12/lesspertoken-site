@@ -3,9 +3,9 @@
   "domain": "https://lesspertoken.com",
   "referral_url": "https://saygm.com/r/poweruser",
   "author": {
-    "name": "",
-    "bio": "",
-    "url": ""
+    "name": "florijan12",
+    "bio": "Runs LessPerToken and maintains the open-source llm-cost-audit skill.",
+    "url": "https://github.com/florijan12"
   },
   "test_location": "",
   "referral_urls": {
