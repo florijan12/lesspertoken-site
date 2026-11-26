@@ -1,5 +1,5 @@
 {
-  "checked": "2026-11-25",
+  "checked": "2026-11-26",
   "openrouter_card_fee": 0.055,
   "note": "Prices are USD per 1M tokens. list = model maker's list price. openrouter = OpenRouter's per-token price before its credit fee. cache = cached input (cache read). null = not published. update_prices.py refreshes saygm and openrouter blocks; check the *_id fields with `python update_prices.py --list` before the first run.",
   "models": [
@@ -26,8 +26,8 @@
         "cache": 0.2
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -54,8 +54,8 @@
         "cache": 0.2
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -82,8 +82,8 @@
         "cache": 0.1
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -109,8 +109,8 @@
         "cache": 0.01
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -137,8 +137,8 @@
         "cache": 0.4
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -166,7 +166,7 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -194,8 +194,8 @@
         "cache": 0.15
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -222,8 +222,8 @@
         "cache": 0.1
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -249,8 +249,8 @@
         "cache": 0.0825
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
     },
@@ -280,8 +280,8 @@
       },
       "id_verified": true,
       "tee": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "open"
     },
     {
@@ -298,9 +298,9 @@
         "cache": 0.006
       },
       "saygm": {
-        "in": 0.07725,
-        "out": 0.309,
-        "cache": 0.001545
+        "in": 0.076941,
+        "out": 0.307764,
+        "cache": 0.001539
       },
       "openrouter": {
         "in": 0.0507,
@@ -309,7 +309,7 @@
         "provider": "Baidu (83% off)"
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
       "openrouter_checked": "2026-11-25",
       "tier": "open"
     },
@@ -326,9 +326,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.0618,
-        "out": 0.3708,
-        "cache": 0.01236
+        "in": 0.061285,
+        "out": 0.36771,
+        "cache": 0.012257
       },
       "openrouter": {
         "in": 0.039,
@@ -338,8 +338,8 @@
       },
       "id_verified": true,
       "tee": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "open"
     },
     {
@@ -355,9 +355,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.854,
-        "out": 9.27,
-        "cache": 0.1854
+        "in": 1.85091,
+        "out": 9.25455,
+        "cache": 0.185091
       },
       "openrouter": {
         "in": 0.25,
@@ -367,8 +367,8 @@
       },
       "id_verified": true,
       "tee": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "open"
     },
     {
@@ -384,9 +384,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.1236,
-        "out": 0.412,
-        "cache": 0.02472
+        "in": 0.123445,
+        "out": 0.411485,
+        "cache": 0.024689
       },
       "openrouter": {
         "in": 0.0356,
@@ -396,8 +396,8 @@
       },
       "id_verified": true,
       "tee": true,
-      "saygm_checked": "2026-11-25",
-      "openrouter_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-26",
       "tier": "open"
     }
   ]
