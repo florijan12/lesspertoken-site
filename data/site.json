@@ -13,5 +13,8 @@
     "blog": "https://saygm.com/r/handle1",
     "skill": "https://saygm.com/r/myname",
     "x": "https://saygm.com/r/iyo4pxly"
-  }
+  },
+  "same_as": [
+    "https://x.com/lesspertoken"
+  ]
 }

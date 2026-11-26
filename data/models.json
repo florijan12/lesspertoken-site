@@ -155,9 +155,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.824,
-        "out": 4.12,
-        "cache": 0.0412
+        "in": 1.339,
+        "out": 6.695,
+        "cache": 0.06695
       },
       "openrouter": {
         "in": 2.0,
@@ -165,7 +165,7 @@
         "cache": 0.1
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-25",
+      "saygm_checked": "2026-11-26",
       "openrouter_checked": "2026-11-26",
       "tier": "frontier",
       "or_estimate": false
