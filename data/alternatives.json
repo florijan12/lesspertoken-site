@@ -20,7 +20,7 @@
       "source": "saygm",
       "pricing": "No subscription or top-up fee; every model at or below list price",
       "catalog": "74 models, some on confidential -tee routes",
-      "privacy": "Attested enclave gateway; -tee models sealed end to end",
+      "privacy": "Gateway in an attested Intel TDX enclave; -tee models sealed through inference",
       "best": "Lowest price on Claude and GPT, and on some open models"
     },
     {
