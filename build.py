@@ -46,6 +46,26 @@ def enrich(m, fee):
         "or_in": money(eff(o["in"])), "or_out": money(eff(o["out"])), "or_cache": money(eff(o.get("cache"))),
         "sg_in": money(s["in"]), "sg_out": money(s["out"]), "sg_cache": money(s.get("cache")),
     }
+    # Big clouds: cheapest standard-tier price across AWS Bedrock, Google Vertex AI and Azure.
+    # Billed on the cloud invoice, so no card fee.
+    names = {"aws": "AWS Bedrock", "google": "Google Vertex AI", "azure": "Azure"}
+    short = {"aws": "AWS", "google": "Google", "azure": "Azure"}
+    cl = m.get("clouds") or {}
+    rows = []
+    for c in ("aws", "google", "azure"):
+        if c in cl:
+            r = cl[c]
+            rows.append({"key": c, "name": names[c], "region": "global" if r["region"] == "global" else r["region"],
+                         "blend": MIX_IN * r["in"] + MIX_OUT * r["out"],
+                         "in": money(r["in"]), "out": money(r["out"]), "cache": money(r.get("cache"))})
+    m["cloud_rows"] = rows
+    if rows:
+        best = min(r["blend"] for r in rows)
+        top = [r for r in rows if abs(r["blend"] - best) < 1e-9]
+        m["cloud"] = {"in": top[0]["in"], "out": top[0]["out"], "where": " · ".join(short[r["key"]] for r in top),
+                      "sg_save": round((1 - sg_blend / best) * 100)}
+    else:
+        m["cloud"] = None
     m.setdefault("id_verified", False)
     return m
 
@@ -277,12 +297,14 @@ def main():
          "publisher": {"@id": domain + "/#org"}, "inLanguage": "en"}]
     base = ""
     checked_human = human_date(data["checked"])
+    cdates = [m["clouds_checked"] for m in data["models"] if m.get("clouds_checked")]
+    clouds_checked_human = human_date(min(cdates)) if cdates else None
     bench, brows = bench_rows(bench_raw, models)
     alt = alternatives(alt_raw, by_slug, fee)
 
     fav = (ROOT / "static/favicon.svg").read_text().strip()
     common = dict(
-        site=site, data=data, base=base, checked_human=checked_human, year=data["checked"][:4],
+        site=site, data=data, base=base, checked_human=checked_human, clouds_checked_human=clouds_checked_human, year=data["checked"][:4],
         favicon_data="data:image/svg+xml;base64," + base64.b64encode(fav.encode()).decode(),
         mark_svg=fav.replace("<svg ", '<svg class="mark" aria-hidden="true" ', 1),
         models=models, bench=bench, calc=True,

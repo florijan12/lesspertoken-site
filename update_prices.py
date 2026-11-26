@@ -97,6 +97,37 @@ def or_cheapest(model_id):
     return best[1] if best else None
 
 
+# Big clouds, read from the same OpenRouter endpoints list. OpenRouter passes each cloud's own
+# list price through, so this is what you pay buying direct from that cloud (spot-checked against
+# the AWS Bedrock and Google Vertex AI pricing pages). Standard tier only: flex, priority, fast and
+# batch endpoints are skipped. Status is ignored on purpose: it is OpenRouter's connection to the
+# cloud, not the cloud's price.
+CLOUDS = {"aws": ("amazon-bedrock",), "google": ("google-vertex",), "azure": ("azure",)}
+NOT_STANDARD = ("flex", "priority", "fast", "ultrafast", "batch", "spot")
+
+
+def cloud_prices(model_id):
+    d = get_json(f"https://openrouter.ai/api/v1/models/{model_id}/endpoints").get("data") or {}
+    out = {}
+    for ep in d.get("endpoints") or []:
+        tag = (ep.get("tag") or "").lower()
+        parts = tag.split("/")
+        cloud = next((c for c, pre in CLOUDS.items() if parts[0] in pre), None)
+        if not cloud or any(p in NOT_STANDARD for p in parts[1:]):
+            continue
+        pr = ep.get("pricing") or {}
+        f = lambda k: None if pr.get(k) in (None, "") else round(float(pr[k]) * 1e6, 6)
+        i, o = f("prompt"), f("completion")
+        if not i or not o:
+            continue
+        region = parts[1] if len(parts) > 1 else "global"
+        row = {"in": i, "out": o, "cache": f("input_cache_read"), "region": region}
+        cur = out.get(cloud)
+        if cur is None or 5 * i + o < 5 * cur["in"] + cur["out"]:
+            out[cloud] = row
+    return out
+
+
 def items(payload):
     return payload.get("data", payload if isinstance(payload, list) else [])
 
@@ -187,6 +218,25 @@ def main():
             m["or_estimate"] = False if m["maker"] != "Open models" else m.get("or_estimate", True)
         else:
             problems.append(f"{m['name']}: OpenRouter ID '{m['openrouter_id']}' not found (run --list)")
+            continue
+        # Cloud prices are extra information: a failure here keeps the last known cloud prices
+        # (shown with their own date) and never blocks the gateway prices above.
+        try:
+            cl = cloud_prices(m["openrouter_id"])
+        except Exception as ex:
+            warnings.append(f"{m['name']}: cloud prices not refreshed ({ex}); kept those from {m.get('clouds_checked', 'never')}")
+            continue
+        old = m.get("clouds") or {}
+        jumps = [f"{c} {old[c]['in']} -> {v['in']}" for c, v in cl.items()
+                 if c in old and old[c]["in"] and abs(v["in"] - old[c]["in"]) / old[c]["in"] > 0.6]
+        if jumps and not a.force:
+            warnings.append(f"{m['name']} clouds held ({'; '.join(jumps)}); check it, then run with --force")
+            continue
+        for c in sorted(set(cl) | set(old)):
+            if cl.get(c) != old.get(c):
+                changed.append(f"{m['name']} clouds.{c}: {old.get(c)} -> {cl.get(c)}")
+        m["clouds"] = cl
+        m["clouds_checked"] = today
 
     print("\n".join(changed) or "No price changes.")
     if warnings:
