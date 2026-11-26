@@ -15,14 +15,14 @@
 <meta property="og:title" content="{{ page.og_title }}">
 <meta property="og:description" content="{{ page.description }}">
 <meta property="og:url" content="{{ page.url }}">
-<meta property="og:image" content="{{ site.domain }}/og.png?v={{ data.checked }}">
+<meta property="og:image" content="{{ page.image or (site.domain ~ '/og.png') }}?v={{ data.checked }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="article:modified_time" content="{{ data.checked }}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ page.og_title }}">
 <meta name="twitter:description" content="{{ page.description }}">
-<meta name="twitter:image" content="{{ site.domain }}/og.png?v={{ data.checked }}">
+<meta name="twitter:image" content="{{ page.image or (site.domain ~ '/og.png') }}?v={{ data.checked }}">
 <link rel="preload" href="{{ base }}/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">{{ page.jsonld|safe }}</script>
 <style>
@@ -160,6 +160,10 @@ footer p{max-width:none}
 .toc .tbtn:hover{background:#2a323b;color:#fff}}
 @media(prefers-reduced-motion:reduce){.fill{transition:none}}
 .post ul{max-width:66ch;padding-left:1.2em;margin:0 0 14px}
+.audits{list-style:none;padding:0;margin:14px 0 0;max-width:78ch}
+.audits li{display:grid;gap:2px;padding:12px 0;border-top:1px solid var(--rule)}
+.audits li:last-child{border-bottom:1px solid var(--rule)}
+.audits span{font-size:15px;color:var(--mute)}
 .post li{margin-bottom:6px}
 .post h2{margin-top:8px}
 .series{font-size:15px;border-left:4px solid var(--slab);padding:4px 0 4px 14px;color:var(--mute)}
@@ -186,19 +190,19 @@ footer p{max-width:none}
 {% block main %}{% endblock %}
 <section class="band cta"><div class="wrap">
 <div><h2 style="margin-bottom:6px">{% block cta_title %}Pay less for the same models{% endblock %}</h2><p>One URL change. Keep OpenRouter as your backup.</p></div>
-<a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Try SayGM</a>
+<a class="btn" href="/go/{{ site.gop }}-footer/" rel="sponsored noopener" target="_blank">Try SayGM</a>
 </div></section>
 </main>
 <footer class="band"><div class="wrap">
 <div><p><b>Sources:</b> <a href="https://saygm.com/models">SayGM models and prices</a>, <a href="https://saygm.com/privacy">SayGM privacy model</a>, <a href="https://openrouter.ai/blog/simplifying-our-platform-fee">OpenRouter platform fee</a>, <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic pricing</a>, <a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini pricing</a>. Prices updated {{ checked_human }}.</p></div>
-<div><p>Affiliate links earn us a reward from SayGM. We are not affiliated with OpenRouter, Anthropic, OpenAI or Google. Product names are trademarks of their owners. © {{ year }} {{ site.brand }}</p></div>
+<div><p>Affiliate links earn us a reward from SayGM. We are not affiliated with OpenRouter, Anthropic, OpenAI or Google. Product names are trademarks of their owners. © {{ year }} {{ site.brand }} · <a href="{{ base }}/about/">About and contact</a></p></div>
 </div></footer>
 <script>
 {
 const secs=[...document.querySelectorAll('[data-toc]')];
 if(secs.length>2){
 const nav=document.createElement('nav');nav.className='toc';nav.setAttribute('aria-label','On this page');
-nav.innerHTML='<p>On this page</p>'+secs.map(s=>`<a href="#${s.id}">${s.dataset.toc}</a>`).join('')+`<a class="tbtn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Try SayGM</a>`;
+nav.innerHTML='<p>On this page</p>'+secs.map(s=>`<a href="#${s.id}">${s.dataset.toc}</a>`).join('')+`<a class="tbtn" href="/go/{{ site.gop }}-toc/" rel="sponsored noopener" target="_blank">Try SayGM</a>`;
 document.body.appendChild(nav);
 const links=[...nav.querySelectorAll('a[href^="#"]')];
 const tocObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.setAttribute('aria-current',String(a.getAttribute('href')==='#'+e.target.id)))})},{rootMargin:'-35% 0px -60% 0px'});

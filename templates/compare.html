@@ -7,7 +7,7 @@
 <p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }} · <a href="#method">How we test</a></p>
 <p class="lede">Claude Fable, Opus, Sonnet and Haiku cost {{ claude_save }}% less on SayGM than on OpenRouter, every day, with the same models from Anthropic. SayGM works like OpenRouter: one API key for Claude, GPT, Gemini and open models, through a gateway that can't read your prompts.</p>
 <div class="hi-line">
-<a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Try SayGM</a>
+<a class="btn" href="/go/{{ site.gop }}-hero/" rel="sponsored noopener" target="_blank">Try SayGM</a>
 <span class="small">No subscription, no top-up fee.</span>
 </div>
 <div class="chart">
@@ -21,6 +21,15 @@
 </div></section>
 
 {{ mx.switch(site, "claude-sonnet-5-5", "Claude Sonnet 5.5", true) }}
+
+<section class="band tight" id="audits" data-toc="Audits"><div class="wrap">
+<h2>Cut the waste first: our audits</h2>
+<p>A lower price per token helps most once you stop paying for tokens you don't need. We read popular open-source AI projects line by line and publish what we find, with fixes.</p>
+<ul class="audits">
+{% for p in posts %}<li><a href="{{ base }}/blog/{{ p.slug }}/"><b>{{ p.title }}</b></a><span>{{ p.date_human }} · {{ p.og_stat }}</span></li>
+{% endfor %}<li><a href="{{ base }}/skill/"><b>Free LLM cost audit skill</b></a><span>Run the same checks on your own code. MIT licensed, runs locally.</span></li>
+</ul>
+</div></section>
 
 
 <section class="band tight" id="prices" data-toc="Prices"><div class="wrap">

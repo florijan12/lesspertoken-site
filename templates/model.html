@@ -9,7 +9,7 @@
 <p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }}</p>
 <p class="lede">{{ m.name }} costs {{ m.f.sg_in }} input and {{ m.f.sg_out }} output per million tokens on SayGM, against {{ m.f.or_in }} and {{ m.f.or_out }} on OpenRouter once its card fee is added.</p>
 <div class="hi-line">
-<a class="btn" href="{{ site.referral_url }}" rel="sponsored noopener" target="_blank">Try {{ m.name }} on SayGM</a>
+<a class="btn" href="/go/{{ site.gop }}-hero/" rel="sponsored noopener" target="_blank">Try {{ m.name }} on SayGM</a>
 <span class="small">No subscription, no top-up fee.</span>
 </div>
 
@@ -25,6 +25,8 @@
 </div>
 <p class="small" style="margin-top:10px">US dollars per million tokens, standard tier. “Not published” means the gateway lists no separate cache price.{% if m.note %} {{ m.note }}{% endif %}{% if m.or_estimate %} †OpenRouter's price depends on which provider you route to.{% endif %}</p>
 </div></section>
+
+{% include "notes/" ~ m.slug ~ ".html" ignore missing with context %}
 
 {{ mx.switch(site, m.saygm_id if m.id_verified else "MODEL_ID", m.name, m.maker == "Anthropic") }}
 
