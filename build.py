@@ -259,8 +259,8 @@ def main():
     faq = [
         faq_item("Is SayGM cheaper than OpenRouter?", cheaper),
         faq_item("Is SayGM private?",
-                 "SayGM itself can't read your prompts, and prompts are never logged. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential -tee models keep prompts sealed end to end.",
-                 "SayGM itself can't read your prompts, and prompts are never logged. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential <code>-tee</code> models keep prompts sealed end to end."),
+                 "Prompts are sealed inside an Intel TDX enclave where SayGM can't read them, and prompts and completions stay out of every record SayGM keeps. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential -tee models stay sealed through inference too.",
+                 "Prompts are sealed inside an Intel TDX enclave where SayGM can't read them, and prompts and completions stay out of every record SayGM keeps. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential <code>-tee</code> models stay sealed through inference too."),
         faq_item("What are the best OpenRouter alternatives?",
                  "It depends on what you need. SayGM for the lowest prices on Claude and GPT, OpenRouter itself for the widest catalogue, Requesty for EU data residency, Venice for privacy-first use with end-to-end encrypted open models, and DeepInfra or Together AI for open models at volume or fine-tuning."),
         faq_item("Does SayGM have a free tier?", "No. There is also no subscription and no top-up fee. You pay per token."),
@@ -290,9 +290,9 @@ def main():
     # ---- one page per model ----
     for m in models:
         o, s = m["or_blend"], m["sg_blend"]
-        tee_txt = (f"The standard route is sealed through SayGM's gateway, then the serving provider reads the prompt. A confidential -tee version of {m['name']} keeps prompts sealed end to end, at a smaller discount."
+        tee_txt = (f"The standard route is sealed through SayGM's gateway, then the serving provider reads the prompt. A confidential -tee version of {m['name']} stays sealed through inference too, at a smaller discount."
                    if m.get("tee") else
-                   f"SayGM's gateway can't read your prompt. The provider that runs {m['name']} processes it under its own API terms, as with any gateway, and optional redaction strips personal data and secrets first.")
+                   f"SayGM's gateway can't read your prompt. The provider that runs {m['name']} processes it under its own API terms, as with any gateway. Optional guardrails can replace the personal data and secrets they recognise first.")
         below_list = ""
         if not m.get("or_estimate"):
             lb = MIX_IN * m["list"]["in"] + MIX_OUT * m["list"]["out"]
