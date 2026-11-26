@@ -4,7 +4,7 @@
 <article class="post">
 <section class="band" id="top" data-toc="About"><div class="wrap">
 <h1>About {{ site.brand }}</h1>
-<p class="lede">{{ site.brand }} compares what the same AI models cost through different API gateways, checks the prices every day, and publishes audits of real projects that show where tokens get wasted. It's a small independent site, not part of SayGM, OpenRouter or any model maker.</p>
+<p class="lede">{{ site.brand }} compares what the same AI models cost through different API gateways, checks the prices every day, and publishes audits of real projects that show where tokens get wasted. It's a small independent site run by {% if site.author.url %}<a href="{{ site.author.url }}" rel="author">{{ site.author.name }}</a>{% else %}{{ site.author.name or site.brand }}{% endif %}, who also maintains the open-source <a href="https://github.com/florijan12/llm-cost-audit">llm-cost-audit skill</a>. It is not part of SayGM, OpenRouter or any model maker.</p>
 </div></section>
 
 <section class="band tight" id="prices" data-toc="How we check prices"><div class="wrap">
