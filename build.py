@@ -50,6 +50,29 @@ def enrich(m, fee):
     return m
 
 
+def model_work(m, fee):
+    """Worked monthly costs for one model, from live prices: an agent with caching, a chat app, a nightly batch job."""
+    L, O, S = m["list"], m["openrouter"], m["saygm"]
+
+    def cost(p, i, o, hit=0.0, f=1.0):
+        c = p.get("cache")
+        hit = hit if c is not None else 0.0
+        return (i * (1 - hit) * p["in"] + i * hit * (c or 0) + o * p["out"]) * f
+
+    pct = lambda new, old: round((1 - new / old) * 100) if old else 0
+    a = {"or_": cost(O, 50, 2, .85, 1 + fee), "sg": cost(S, 50, 2, .85), "sg_nocache": cost(S, 50, 2)}
+    c = {"list": cost(L, 5, 1), "or_": cost(O, 5, 1, 0, 1 + fee), "sg": cost(S, 5, 1)}
+    b = {"batch": cost(L, 20, 5) / 2, "or_": cost(O, 20, 5, 0, 1 + fee), "sg": cost(S, 20, 5)}
+    v = {"list": cost(L, 100, 10), "or_": cost(O, 100, 10, 0, 1 + fee), "sg": cost(S, 100, 10)}
+    fmt = lambda d: {k: money(x) for k, x in d.items()} | {"raw": d}
+    tidy = lambda r: int(r) if r == int(r) else r
+    cache_of = lambda p: None if p.get("cache") is None else tidy(round(p["cache"] / p["in"] * 100, 1))
+    return {"agent": fmt(a), "chat": fmt(c), "batch": fmt(b), "volume": fmt(v),
+            "agent_cache_pct": pct(a["sg"], a["sg_nocache"]), "agent_sg_vs_or": pct(a["sg"], a["or_"]),
+            "agent_or_minus_sg": money(a["or_"] - a["sg"]), "batch_sg_cheaper": b["sg"] < b["batch"],
+            "cache_ratio_list": cache_of(L), "cache_ratio_sg": cache_of(S), "cache_ratio_or": cache_of(O)}
+
+
 def stale_notes(models, checked):
     """Label any gateway price that the daily check held back, with the date it was last confirmed."""
     names = {"saygm": "SayGM", "openrouter": "OpenRouter"}
@@ -198,19 +221,22 @@ POSTS = [
      "title": "How to cut your LLM API bill: 6 token-saving techniques with examples",
      "short": "6 ways to cut your LLM API bill",
      "seo_title": "How to Cut Your LLM API Bill: 6 Token-Saving Techniques",
-     "description": "Prompt caching, model routing, shorter outputs, batch jobs, trimmed context and the right gateway: six ways to cut your LLM API bill, with examples."},
+     "description": "Prompt caching, model routing, shorter outputs, batch jobs, trimmed context and the right gateway: six ways to cut your LLM API bill, with examples.",
+     "og_head": "6 ways to cut your LLM API bill", "og_stat": "Caching, routing, shorter outputs, batching"},
     {"slug": "gpt-researcher-cost-audit", "template": "posts/gpt-researcher-audit.html", "part": 2,
      "date": "2026-11-25",
      "title": "We audited GPT Researcher's LLM calls: a caching miss from two quote marks, and 4 other leaks",
      "short": "Auditing GPT Researcher's token use",
      "seo_title": "GPT Researcher LLM Cost Audit: 5 Token Leaks Found",
-     "description": "We audited the open-source GPT Researcher agent's LLM calls: a broken prompt cache, high reasoning effort on small jobs and paid retries, with fixes."},
+     "description": "We audited the open-source GPT Researcher agent's LLM calls: a broken prompt cache, high reasoning effort on small jobs and paid retries, with fixes.",
+     "og_head": "We audited GPT Researcher's LLM calls", "og_stat": "5 token leaks, one from two quote marks"},
     {"slug": "browser-use-cost-audit", "template": "posts/browser-use-audit.html", "part": 3,
      "date": "2026-11-26",
      "title": "We audited browser-use: Claude on OpenRouter or Bedrock pays full price for every step",
      "short": "Auditing browser-use's token use",
      "seo_title": "browser-use Cost Audit: No Prompt Caching on OpenRouter & Bedrock",
-     "description": "browser-use only turns on prompt caching for Claude on the direct Anthropic API. On OpenRouter or Bedrock every step pays full price. The fix, and what it saves."},
+     "description": "browser-use only turns on prompt caching for Claude on the direct Anthropic API. On OpenRouter or Bedrock every step pays full price. The fix, and what it saves.",
+     "og_head": "We audited browser-use's LLM calls", "og_stat": "Claude on OpenRouter or Bedrock: no prompt cache"},
 ]
 
 
@@ -233,10 +259,15 @@ def main():
     models = [enrich(m, fee) for m in data["models"]]
     stale_notes(models, data["checked"])
     by_slug = {m["slug"]: m for m in models}
+    for m in models:
+        m["work"] = model_work(m, fee)
     groups = [{"name": g, "models": [m for m in models if m["maker"] == g]} for g in GROUP_ORDER]
     groups = [g for g in groups if g["models"]]
     max_save = max(m["save"] for m in models)
     domain = site["domain"].rstrip("/")
+    for p in POSTS:  # the homepage lists posts too
+        p["url"] = f"{domain}/blog/{p['slug']}/"
+        p["date_human"] = human_date(p["date"])
     SITE_NODES[:] = [
         {"@type": "Organization", "@id": domain + "/#org", "name": site["brand"], "url": domain + "/",
          "logo": {"@type": "ImageObject", "url": domain + "/logo.svg"},
@@ -256,6 +287,10 @@ def main():
         mark_svg=fav.replace("<svg ", '<svg class="mark" aria-hidden="true" ', 1),
         models=models, bench=bench, calc=True,
     )
+    refs = site.get("referral_urls", {})
+    go_ref = {"home": "site", "model": "site", "about": "site", "blog": "blog", "skill": "skill"}
+    tagged = lambda gop: dict(site, gop=gop, referral_url=refs.get(go_ref[gop], site["referral_url"]))
+    common["site"] = tagged("home")
 
     def js_data(start):
         return json.dumps({"fee": fee, "base": base, "start": start, "models": [
@@ -310,7 +345,7 @@ def main():
     noted = [m for m in models if m.get("note")]
     (out / "index.html").write_text(env.get_template("compare.html").render(
         **common, page=page, groups=groups, max_save=max_save, claude_save=claude_save, faq=faq, noted=noted,
-        bench_rows=brows, alt=alt, js_data=js_data("claude-sonnet-5-5")))
+        bench_rows=brows, alt=alt, js_data=js_data("claude-sonnet-5-5"), posts=sorted(POSTS, key=lambda p: p["date"], reverse=True)))
 
     # ---- one page per model ----
     for m in models:
@@ -358,26 +393,26 @@ def main():
         d = out / "models" / m["slug"]
         d.mkdir(parents=True)
         (d / "index.html").write_text(env.get_template("model.html").render(
-            **common, page=mpage, m=m, faq=mfaq, bench_row=brow, js_data=js_data(m["slug"])))
+            **{**common, "site": tagged("model")}, page=mpage, m=m, faq=mfaq, bench_row=brow, js_data=js_data(m["slug"]), bs=by_slug))
 
     # ---- blog ----
     ex = token_examples(by_slug, fee)
     sol = by_slug.get("gpt-6-2-sol")
     sol_below = round((1 - (MIX_IN * sol["saygm"]["in"] + MIX_OUT * sol["saygm"]["out"]) / (MIX_IN * sol["list"]["in"] + MIX_OUT * sol["list"]["out"])) * 100) if sol else None
-    refs = site.get("referral_urls", {})
-    with_ref = lambda key: dict(site, referral_url=refs.get(key, site["referral_url"]))
     blog_common = {k: v for k, v in common.items() if k != "calc"}
-    blog_common["site"] = with_ref("blog")
+    blog_common["site"] = tagged("blog")
     for p in POSTS:
         p["url"] = f"{domain}/blog/{p['slug']}/"
         p["date_human"] = human_date(p["date"])
     for p in POSTS:
+        post_image = f"{domain}/og-{p['slug']}.png" if (ROOT / "static" / f"og-{p['slug']}.png").exists() else None
         ppage = {
             "title": p.get("seo_title", p["title"]), "description": p["description"], "og_title": p["title"], "url": p["url"],
+            "image": post_image,
             "jsonld": jsonld([
                 {"@type": "BlogPosting", "headline": p["title"], "datePublished": p["date"], "dateModified": data["checked"],
                  "author": author_ld(site), "publisher": {"@type": "Organization", "name": site["brand"]},
-                 "image": domain + "/og.png", "mainEntityOfPage": p["url"]},
+                 "image": post_image or domain + "/og.png", "mainEntityOfPage": p["url"]},
                 {"@type": "BreadcrumbList", "itemListElement": [
                     {"@type": "ListItem", "position": 1, "name": "Blog", "item": domain + "/blog/"},
                     {"@type": "ListItem", "position": 2, "name": p["short"]}]}]),
@@ -405,14 +440,41 @@ def main():
                                 "author": {"@type": "Organization", "name": site["brand"]}, "url": surl}])}
     (out / "skill").mkdir()
     (out / "skill" / "index.html").write_text(env.get_template("skill.html").render(
-        **{**blog_common, "site": with_ref("skill")}, calc=False, page=spage, skill_prices_human=human_date("2026-11-24")))
+        **{**blog_common, "site": tagged("skill")}, calc=False, page=spage, skill_prices_human=human_date("2026-11-24")))
+
+    # ---- about page ----
+    aurl = domain + "/about/"
+    apage = {"title": f"About {site['brand']}: how we check prices and earn money",
+             "description": "Who runs LessPerToken, how the daily price checks work, how the site earns money, and how to reach us or report a wrong price.",
+             "og_title": f"About {site['brand']}", "url": aurl,
+             "jsonld": jsonld([{"@type": "AboutPage", "name": f"About {site['brand']}", "url": aurl,
+                                "about": {"@id": domain + "/#org"}, "dateModified": data["checked"]}])}
+    (out / "about").mkdir()
+    (out / "about" / "index.html").write_text(env.get_template("about.html").render(
+        **{**common, "site": tagged("about"), "calc": False}, page=apage, posts=POSTS, n_models=len(models)))
+
+    # ---- /go/ links: one tiny page per button, so analytics counts clicks per placement ----
+    spots = ["hero", "switch", "calc", "footer", "toc"]
+    go_tpl = ('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow">'
+              '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Opening SayGM</title>'
+              '<meta http-equiv="refresh" content="3;url={u}"></head>'
+              '<body style="font:18px/1.5 system-ui,sans-serif;padding:48px 24px;text-align:center">'
+              '<p>Opening SayGM…</p><p><a href="{u}" rel="sponsored nofollow">Continue to SayGM</a></p>'
+              '<script>addEventListener("load",function(){{setTimeout(function(){{location.replace("{u}")}},400)}})</script>'
+              '</body></html>')
+    for gop, key in go_ref.items():
+        u = html.escape(refs.get(key, site["referral_url"]), quote=True)
+        for spot in spots:
+            d = out / "go" / f"{gop}-{spot}"
+            d.mkdir(parents=True)
+            (d / "index.html").write_text(go_tpl.format(u=u))
 
     # ---- sitemap, robots, static files ----
     urls = ([domain + "/"] + [f"{domain}/models/{m['slug']}/" for m in models]
-            + [domain + "/blog/"] + [p["url"] for p in POSTS] + [surl])
+            + [domain + "/blog/"] + [p["url"] for p in POSTS] + [surl, aurl])
     (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
         "".join(f"  <url><loc>{u}</loc><lastmod>{data['checked']}</lastmod></url>\n" for u in urls) + "</urlset>\n")
-    (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {domain}/sitemap.xml\n")
+    (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /go/\nSitemap: {domain}/sitemap.xml\n")
     for f in (ROOT / "static").iterdir():
         shutil.copy(f, out / f.name)
     print(f"Built {len(urls)} pages into {out}")
