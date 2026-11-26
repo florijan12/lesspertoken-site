@@ -435,12 +435,12 @@ def main():
              "description": "Free Agent Skill that scans your code's LLM API calls for wasted tokens (caching, routing, batching) and estimates each fix's monthly saving.",
              "og_title": stitle, "url": surl,
              "jsonld": jsonld([{"@type": "SoftwareApplication", "name": "llm-cost-audit", "applicationCategory": "DeveloperApplication",
-                                "operatingSystem": "Any", "softwareVersion": "1.1", "license": "https://opensource.org/licenses/MIT",
+                                "operatingSystem": "Any", "softwareVersion": "1.2", "license": "https://opensource.org/licenses/MIT",
                                 "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
                                 "author": {"@type": "Organization", "name": site["brand"]}, "url": surl}])}
     (out / "skill").mkdir()
     (out / "skill" / "index.html").write_text(env.get_template("skill.html").render(
-        **{**blog_common, "site": tagged("skill")}, calc=False, page=spage, skill_prices_human=human_date("2026-11-24")))
+        **{**blog_common, "site": tagged("skill")}, calc=False, page=spage, skill_prices_human=human_date("2026-11-26")))
 
     # ---- about page ----
     aurl = domain + "/about/"
