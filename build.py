@@ -205,6 +205,12 @@ POSTS = [
      "short": "Auditing GPT Researcher's token use",
      "seo_title": "GPT Researcher LLM Cost Audit: 5 Token Leaks Found",
      "description": "We audited the open-source GPT Researcher agent's LLM calls: a broken prompt cache, high reasoning effort on small jobs and paid retries, with fixes."},
+    {"slug": "browser-use-cost-audit", "template": "posts/browser-use-audit.html", "part": 3,
+     "date": "2026-11-26",
+     "title": "We audited browser-use: Claude on OpenRouter or Bedrock pays full price for every step",
+     "short": "Auditing browser-use's token use",
+     "seo_title": "browser-use Cost Audit: No Prompt Caching on OpenRouter & Bedrock",
+     "description": "browser-use only turns on prompt caching for Claude on the direct Anthropic API. On OpenRouter or Bedrock every step pays full price. The fix, and what it saves."},
 ]
 
 
@@ -379,7 +385,7 @@ def main():
         d = out / "blog" / p["slug"]
         d.mkdir(parents=True)
         (d / "index.html").write_text(env.get_template(p["template"]).render(
-            **blog_common, calc=False, page=ppage, post=p, posts=POSTS, ex=ex, sol=sol, sol_below=sol_below))
+            **blog_common, calc=False, page=ppage, post=p, posts=POSTS, ex=ex, sol=sol, sol_below=sol_below, bs=by_slug))
     bpage = {"title": f"Token-saving blog | {site['brand']}",
              "description": "Practical ways to cut LLM API costs: caching, routing, batching and pricing, with worked examples.",
              "og_title": f"{site['brand']} blog: spend less per token", "url": domain + "/blog/",
