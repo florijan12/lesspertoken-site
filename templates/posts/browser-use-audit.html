@@ -1,0 +1,111 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="{{ base }}/blog/">Blog</a><a href="#leak">The leak</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
+{% block cta_title %}Turn the cache on, then pay less for what's left{% endblock %}
+{% block main %}
+{% set sn = bs['claude-sonnet-5-5'] %}
+<article class="post">
+<section class="band" id="top" data-toc="Intro"><div class="wrap">
+<p class="crumb"><a href="{{ base }}/blog/">Blog</a> › Token saving, part {{ post.part }}</p>
+<h1>{{ post.title }}</h1>
+<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %} · {{ post.date_human }} · Prices updated {{ checked_human }}</p>
+<p class="lede">browser-use is one of the most cost-aware agent codebases we have read. It still has one leak: run it on Claude through OpenRouter or Amazon Bedrock and every step pays full price for the whole history, screenshots included. Turning the cache on should cut that bill by more than half.</p>
+<p class="series">Part {{ post.part }} of a series on spending less per token. <a href="{{ base }}/blog/gpt-researcher-cost-audit/">Part 2</a> audited GPT Researcher; <a href="{{ base }}/blog/token-saving-basics/">part 1</a> explains caching if you're new to it.</p>
+</div></section>
+
+<section class="band tight" id="project" data-toc="The project"><div class="wrap">
+<h2>The project and how we checked it</h2>
+<p><a href="https://github.com/browser-use/browser-use">browser-use</a> lets an AI agent drive a real browser: it looks at the page (as text and as screenshots), writes a step of code, runs it, and repeats until the task is done. A single task can take dozens of steps, and every step sends the conversation so far back to the model. That makes the prompt cache the most important cost setting in the whole project.</p>
+<p>We ran our free <a href="{{ base }}/skill/">LLM cost audit skill</a> on commit <code>94784c1</code> (24 November 2026). The scanner found almost nothing, because browser-use calls models through Pydantic AI rather than a provider SDK, so we read the agent loop and the model setup by hand, along with the Pydantic AI version it pins (2.66.0). We did not run the agent; the numbers below are estimates, and we say what they rest on.</p>
+</div></section>
+
+<section class="band tight" id="good" data-toc="What it does well"><div class="wrap">
+<h2>What it already does well</h2>
+<ul>
+<li><b>Screenshot pruning that keeps the cache intact.</b> Old screenshots are dropped 18 at a time instead of one per step, so the cached prefix stays identical between prunes. A comment in the code explains why: pruning every step turned each request into a cache miss on their own benchmark.</li>
+<li><b>Caching switched on for Claude</b> on the direct Anthropic API. Another comment records the old state: "cache_read was always 0".</li>
+<li><b>Compaction</b> of long histories, on the server where the API supports it and with a summary elsewhere.</li>
+<li><b>The end-of-run judge reuses the cache</b> by resending the run's last request instead of a fresh prompt.</li>
+</ul>
+<p>This is careful work. The leak below is the kind that survives careful work, because it only shows up on routes the team doesn't use day to day.</p>
+</div></section>
+
+<section class="band tight" id="leak" data-toc="1. The leak"><div class="wrap">
+<h2>1. Claude on OpenRouter or Bedrock never caches</h2>
+<p>When browser-use builds the agent, it asks for prompt caching in exactly one case: when the provider is <code>anthropic</code>. Claude reached any other way gets no cache setting:</p>
+<div class="scroll"><table>
+<thead><tr><th>How you pass the model</th><th>Cache requested?</th></tr></thead>
+<tbody>
+<tr><td><code>llm='anthropic:claude-...'</code></td><td>Yes</td></tr>
+<tr><td><code>llm='openrouter:anthropic/claude-...'</code></td><td>No</td></tr>
+<tr><td><code>ChatOpenAI('anthropic/claude-...', base_url='https://openrouter.ai/api/v1')</code></td><td>No</td></tr>
+<tr><td><code>llm='bedrock:...claude...'</code></td><td>No</td></tr>
+</tbody></table></div>
+<p>That matters because Claude only caches when asked. OpenRouter's documentation says caching for Anthropic models needs <code>cache_control</code> breakpoints, while OpenAI models cache automatically. Bedrock's Converse API works the same way, with <code>cachePoint</code> blocks. Pydantic AI knows how to add both, but only when the <code>cache</code> setting is on.</p>
+<p>So on those routes, every step re-bills the system prompt, the tool definitions, the whole history and up to 20 screenshots at the full input price. The project's own benchmark comment puts the average step at about 39,000 input tokens.</p>
+<div class="ex">
+<p class="ex-h">The fix in browser-use (agent/loop.py, build_agent)</p>
+<pre><code>name = model if isinstance(model, str) else getattr(model, 'model_name', '')
+if system == 'anthropic' or (system in ('openrouter', 'bedrock') and 'claude' in name.lower()):
+    if 'cache' not in own:
+        settings['cache'] = True</code></pre>
+</div>
+<div class="ex">
+<p class="ex-h">The workaround today: pass the model with caching on</p>
+<pre><code>from pydantic_ai.models.openrouter import OpenRouterModel
+
+agent = Agent(task=task, llm=OpenRouterModel('anthropic/claude-sonnet-5.5', settings={'cache': True}))</code></pre>
+</div>
+<p>On Bedrock, the same works with <code>BedrockConverseModel(..., settings={'cache': True})</code>. Check that <code>cache_read</code> tokens show up in the usage after a few steps.</p>
+</div></section>
+
+<section class="band tight" id="worth" data-toc="What it's worth"><div class="wrap">
+<h2>What it's worth</h2>
+<p>Our estimate for a team running 10,000 agent steps a month (about 500 tasks of 20 steps), Claude through OpenRouter, prices including its 5.5% card fee:</p>
+<div class="scroll"><table>
+<thead><tr><th>Model</th><th class="n">Today</th><th class="n">With caching</th></tr></thead>
+<tbody>
+<tr><td>Claude Sonnet 5.5</td><td class="n">$895 / month</td><td class="n">$255 to $404 <span class="save-tag">−55 to 72%</span></td></tr>
+<tr><td>Claude Opus 5.5</td><td class="n">$1,789 / month</td><td class="n">$509 to $808 <span class="save-tag">−55 to 72%</span></td></tr>
+</tbody></table></div>
+<p class="small">How we got these numbers: 39,400 input tokens per step (from the project's own benchmark comment: 27.8M input tokens over 705 steps) and an assumed 600 output tokens per step. 70% to 85% of each request's input read from cache, with the new part billed as a 1.25× cache write. Anthropic list prices on 26 November 2026: Sonnet 5.5 $2 input, $0.10 cached, $10 output per million; Opus 5.5 twice that. Step size depends heavily on the pages and on vision, so trust the percentage more than the dollars.</p>
+</div></section>
+
+<section class="band tight" id="judge" data-toc="2. The judge"><div class="wrap">
+<h2>2. A smaller one: the judge runs after every task</h2>
+<p>By default, browser-use sends one more request after each run to judge whether the task succeeded. On cached routes that's cheap, because it reuses the run's prefix. On the uncached routes above it's billed in full, and if the cached judge fails, the fallback sends up to 120,000 characters of trace plus screenshots as a fresh prompt. If you never read <code>result.judgement</code>, pass <code>judge=False</code>.</p>
+</div></section>
+
+<section class="band tight" id="gateway" data-toc="Where to buy"><div class="wrap">
+<h2>Where the tokens are bought</h2>
+<p>Caching is the big lever here; the price per token is the second. SayGM lists Claude Sonnet 5.5 at {{ sn.f.sg_in }} input and {{ sn.f.sg_out }} output per million tokens, against {{ sn.f.or_in }} and {{ sn.f.or_out }} on OpenRouter with its fee, about {{ sn.save }}% less. SayGM has an Anthropic-compatible endpoint, so you can pass a Pydantic AI <code>AnthropicModel</code> pointed at it and browser-use's built-in Anthropic path turns caching on by itself. On the same assumptions as above, the Sonnet example comes to roughly $124 to $197 a month. The usual caveat applies: on Claude the model maker still processes the prompt whichever gateway you use.</p>
+<p class="small">Disclosure: we earn a reward if you sign up to SayGM through our links. Your price is the same.</p>
+</div></section>
+
+<section class="band tight" id="summary" data-toc="Summary"><div class="wrap">
+<h2>Summary</h2>
+<div class="scroll"><table>
+<thead><tr><th>#</th><th>Finding</th><th>Fix</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Claude on OpenRouter or Bedrock: no prompt caching, every step at full price</td><td>Request <code>cache</code> for Claude on those routes, or pass the model with <code>settings={'cache': True}</code></td><td>Five lines</td></tr>
+<tr><td>2</td><td>Judge request after every run, billed in full on uncached routes</td><td><code>judge=False</code> if you don't use it</td><td>One argument</td></tr>
+</tbody></table></div>
+<h3 style="margin-top:28px">Check your own agent for the same thing</h3>
+<ul>
+<li>Look at <code>cache_read</code> (or your provider's equivalent) in your usage data. If it's zero on a model that should cache, nothing else on this list matters as much.</li>
+<li>If you support several providers, check that the cache setting reaches every route to the same model, not just the one you test on.</li>
+<li>Count how many images ride along on each request, and whether dropping them rewrites earlier messages.</li>
+</ul>
+<p>Or let an agent do it: <a href="{{ base }}/skill/">the LLM cost audit skill</a> is free and runs locally. This audit is another reminder that its scanner needs to recognise framework calls like Pydantic AI, not just provider SDKs.</p>
+<p class="small">Sources: <a href="https://github.com/browser-use/browser-use">browser-use on GitHub</a> (commit 94784c1), <a href="https://pypi.org/project/pydantic-ai-slim/2.66.0/">Pydantic AI 2.66.0</a>, <a href="https://openrouter.ai/docs/features/prompt-caching">OpenRouter prompt caching docs</a>, <a href="https://saygm.com/models">SayGM prices</a>. We didn't run the agent; token counts are estimates.</p>
+</div></section>
+<section class="band tight" id="related" data-toc="Related"><div class="wrap">
+<h2>Related</h2>
+<ul>
+{% for p in posts if p.slug != post.slug %}<li><a href="{{ base }}/blog/{{ p.slug }}/">{{ p.title }}</a></li>
+{% endfor %}<li><a href="{{ base }}/models/claude-sonnet-5-5/">Claude Sonnet 5.5 prices: SayGM vs OpenRouter</a></li>
+<li><a href="{{ base }}/models/claude-opus-5-5/">Claude Opus 5.5 prices: SayGM vs OpenRouter</a></li>
+<li><a href="{{ base }}/skill/">Free LLM cost audit skill</a></li>
+</ul>
+</div></section>
+</article>
+{% endblock %}
