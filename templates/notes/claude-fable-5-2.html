@@ -1,0 +1,9 @@
+{% set w = m.work %}{% set op = bs['claude-opus-5-5'] %}{% set so = bs['claude-sonnet-5-5'] %}
+<section class="band tight" id="guide" data-toc="Cost guide"><div class="wrap post">
+<h2>When Claude Fable 5.2 is worth its price</h2>
+<p>Fable 5.2 is the Mythos-tier Claude that anyone can use, and the most expensive model we track from Anthropic: {{ m.f.list_in }} input and {{ m.f.list_out }} output per million tokens at list, twice Opus 5.5. It shares its underlying model with Claude Mythos 5.2 and adds extra safeguards for biology and cybersecurity topics.</p>
+<p>At that price, caching decides the bill. Fable's cached input costs {{ w.cache_ratio_sg }}% of its normal input price, the deepest cache discount of any Claude model. A coding agent that sends 50M input tokens a month, 85% of it from cache, plus 2M output costs about <b>{{ w.agent.or_ }} on OpenRouter and {{ w.agent.sg }} on SayGM</b>. Without the cache, the same work on SayGM would be {{ w.agent.sg_nocache }}.</p>
+<p>Most teams don't need Fable for every step. A common split is Fable for planning and final review, and a cheaper model for the bulk of the work: the same agent on Opus 5.5 costs {{ op.work.agent.sg }} on SayGM, and on Sonnet 5.5 {{ so.work.agent.sg }}.</p>
+<p>For overnight jobs, compare before you choose a gateway. Anthropic's batch API halves the list price, which puts 20M input and 5M output at {{ w.batch.batch }}, against {{ w.batch.sg }} live on SayGM{% if not w.batch_sg_cheaper %}, so direct batch wins for work that can wait{% else %}, so SayGM is still cheaper{% endif %}.</p>
+<p><b>Verdict:</b> {% if m.cheaper %}SayGM is {{ m.save }}% cheaper than OpenRouter for Fable 5.2, worth {{ w.agent_or_minus_sg }} a month on the agent example alone.{% else %}OpenRouter is currently cheaper for Fable 5.2; check again before you switch.{% endif %}</p>
+</div></section>

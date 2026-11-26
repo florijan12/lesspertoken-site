@@ -1,0 +1,13 @@
+{% set w = m.work %}{% set op = bs['claude-opus-5-5'] %}{% set ha = bs['claude-haiku-5-5'] %}
+<section class="band tight" id="guide" data-toc="Cost guide"><div class="wrap post">
+<h2>Sonnet 5.5 as your default model</h2>
+<p>Sonnet 5.5 is the Claude many teams run by default for agents and coding: {{ m.f.list_in }} input and {{ m.f.list_out }} output per million tokens at list, half the price of Opus 5.5. Because it runs so many steps, small inefficiencies on Sonnet add up faster than anywhere else.</p>
+<p>Three examples at today's prices:</p>
+<ul>
+<li><b>Coding agent</b>, 50M input a month (85% from cache) and 2M output: {{ w.agent.or_ }} on OpenRouter, {{ w.agent.sg }} on SayGM. Without caching, {{ w.agent.sg_nocache }} on SayGM.</li>
+<li><b>Chat app</b>, 5M input and 1M output with no shared prefix: {{ w.chat.or_ }} on OpenRouter, {{ w.chat.sg }} on SayGM.</li>
+<li><b>Bulk processing</b>, 100M input and 10M output: {{ w.volume.or_ }} on OpenRouter, {{ w.volume.sg }} on SayGM. If this can wait for a batch run, Anthropic's batch API at half of list is the cheaper route.</li>
+</ul>
+<p>Two checks pay off on Sonnet. First, make sure caching is really on: Claude only caches when asked, and our <a href="{{ base }}/blog/browser-use-cost-audit/">browser-use audit</a> shows how easily a route loses it. Second, look for steps that are pure classification or extraction: Haiku 5.5 does those for {{ ha.f.sg_in }} input on SayGM, against {{ m.f.sg_in }} for Sonnet.</p>
+<p><b>Verdict:</b> {% if m.cheaper %}SayGM is {{ m.save }}% cheaper than OpenRouter on Sonnet 5.5, the same model at about half the price.{% else %}OpenRouter is currently cheaper for Sonnet 5.5.{% endif %}</p>
+</div></section>

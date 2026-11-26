@@ -1,0 +1,9 @@
+{% set w = m.work %}{% set as_ = bs['gpt-6-2-astra'] %}
+<section class="band tight" id="guide" data-toc="Cost guide"><div class="wrap post">
+<h2>What GPT-6.2 Sol costs in practice</h2>
+<p>GPT-6.2 Sol is OpenAI's mid-priced GPT-6.2 model: {{ m.f.list_in }} input and {{ m.f.list_out }} output per million tokens at list, a quarter of GPT-6.2 Astra. GPT Researcher, the open-source research agent we <a href="{{ base }}/blog/gpt-researcher-cost-audit/">audited line by line</a>, runs on Sol by default.</p>
+<p>Unlike Claude, OpenAI caches repeated prompt prefixes automatically, so you don't add cache markers; you only need to keep the start of your prompts identical between calls. Cached input on Sol costs {{ w.cache_ratio_sg }}% of normal input. For an agent with 50M input tokens a month (85% from cache) and 2M output, that's about <b>{{ w.agent.or_ }} on OpenRouter and {{ w.agent.sg }} on SayGM</b>, against {{ w.agent.sg_nocache }} on SayGM if every prompt started differently.</p>
+<p>Two things to watch on Sol. Reasoning tokens are billed as output at {{ m.f.sg_out }} per million on SayGM, so high reasoning effort on small jobs adds up quickly. And Astra costs four times as much per token: the same agent workload on Astra is {{ as_.work.agent.sg }} on SayGM, so keep it for the steps that need it.</p>
+<p>For jobs that can wait, OpenAI's batch API halves the list price: 20M input and 5M output costs {{ w.batch.batch }} that way, against {{ w.batch.sg }} live on SayGM.</p>
+<p><b>Verdict:</b> {% if m.cheaper %}SayGM is {{ m.save }}% cheaper than OpenRouter on GPT-6.2 Sol for live requests.{% else %}OpenRouter is currently cheaper for GPT-6.2 Sol.{% endif %}</p>
+</div></section>

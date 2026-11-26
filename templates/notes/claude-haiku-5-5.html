@@ -1,0 +1,13 @@
+{% set w = m.work %}{% set so = bs['claude-sonnet-5-5'] %}
+<section class="band tight" id="guide" data-toc="Cost guide"><div class="wrap post">
+<h2>Where Haiku 5.5 saves the most</h2>
+<p>Haiku 5.5 is the smallest and cheapest Claude: {{ m.f.list_in }} input and {{ m.f.list_out }} output per million tokens at list, a twentieth of Sonnet 5.5. It's built for high-volume, short jobs: routing requests, classifying tickets, pulling fields out of text, and summarising short documents.</p>
+<p>At these prices, the per-token saving matters less in dollars than how much work you move onto Haiku. Some numbers at today's prices:</p>
+<ul>
+<li><b>Bulk classification</b>, 100M input and 10M output a month: {{ w.volume.or_ }} on OpenRouter and {{ w.volume.sg }} on SayGM. The same volume on Sonnet 5.5 would cost {{ so.work.volume.sg }} on SayGM.</li>
+<li><b>Support bot</b>, 5M input and 1M output: {{ w.chat.or_ }} on OpenRouter and {{ w.chat.sg }} on SayGM.</li>
+</ul>
+<p>A router in front of a bigger model is the classic use: Haiku reads the request and decides whether Sonnet or Opus needs to see it. If four out of five requests never reach the big model, the router pays for itself many times over. Test it on real traffic first, because a wrong route costs quality, not just money.</p>
+<p>Cached input on Haiku costs {{ m.f.sg_cache }} per million on SayGM ({{ w.cache_ratio_sg }}% of normal input), so long shared instructions are cheap to repeat once caching is on.</p>
+<p><b>Verdict:</b> {% if m.cheaper %}SayGM is {{ m.save }}% cheaper than OpenRouter on Haiku 5.5. In dollars that's small per request, so pick Haiku for volume and let the rate add up.{% else %}OpenRouter is currently cheaper for Haiku 5.5.{% endif %}</p>
+</div></section>

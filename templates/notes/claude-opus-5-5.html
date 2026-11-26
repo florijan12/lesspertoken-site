@@ -1,0 +1,9 @@
+{% set w = m.work %}{% set fa = bs['claude-fable-5-2'] %}{% set so = bs['claude-sonnet-5-5'] %}
+<section class="band tight" id="guide" data-toc="Cost guide"><div class="wrap post">
+<h2>What Claude Opus 5.5 costs in practice</h2>
+<p>Opus 5.5 is Anthropic's Opus tier: {{ m.f.list_in }} input and {{ m.f.list_out }} output per million tokens at list, half of Fable 5.2 and twice Sonnet 5.5. Teams often reach for it on the hard steps of long tasks, such as planning, tricky refactors and reviews, and leave the routine work to Sonnet.</p>
+<p>Caching matters as much as the model choice. Cached input on Opus 5.5 costs {{ w.cache_ratio_sg }}% of normal input. For a coding agent with 50M input tokens a month (85% from cache) and 2M output, that's about <b>{{ w.agent.or_ }} on OpenRouter and {{ w.agent.sg }} on SayGM</b>, against {{ w.agent.sg_nocache }} on SayGM with no cache at all. On Claude, caching only happens when the request asks for it, so check that your framework sends cache breakpoints, especially through a gateway: our <a href="{{ base }}/blog/browser-use-cost-audit/">browser-use audit</a> found one that didn't.</p>
+<p>If you split work between models, the same agent workload costs {{ so.work.agent.sg }} on Sonnet 5.5 and {{ fa.work.agent.sg }} on Fable 5.2, both on SayGM. Moving even half the steps from Opus to Sonnet takes about a quarter off the bill.</p>
+<p>Batch jobs are the exception to buying through a gateway. Anthropic's batch API halves the list price, so 20M input and 5M output costs {{ w.batch.batch }} direct, against {{ w.batch.sg }} live on SayGM.{% if not w.batch_sg_cheaper %} Use batch for anything that can wait a few hours.{% endif %}</p>
+<p><b>Verdict:</b> {% if m.cheaper %}for interactive work, SayGM is {{ m.save }}% cheaper than OpenRouter on Opus 5.5.{% else %}OpenRouter is currently cheaper for Opus 5.5.{% endif %}</p>
+</div></section>
