@@ -435,7 +435,7 @@ def main():
              "description": "Free Agent Skill that scans your code's LLM API calls for wasted tokens (caching, routing, batching) and estimates each fix's monthly saving.",
              "og_title": stitle, "url": surl,
              "jsonld": jsonld([{"@type": "SoftwareApplication", "name": "llm-cost-audit", "applicationCategory": "DeveloperApplication",
-                                "operatingSystem": "Any", "softwareVersion": "1.2", "license": "https://opensource.org/licenses/MIT",
+                                "operatingSystem": "Any", "softwareVersion": "1.3", "license": "https://opensource.org/licenses/MIT",
                                 "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
                                 "author": {"@type": "Organization", "name": site["brand"]}, "url": surl}])}
     (out / "skill").mkdir()
