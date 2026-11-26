@@ -60,8 +60,18 @@ def stale_notes(models, checked):
             m["note"] = " ".join(filter(None, [m.get("note"), "; ".join(old) + "."]))
 
 
+SITE_NODES = []  # Organization + WebSite, filled in main()
+
+
 def jsonld(graph):
-    return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False).replace("</", "<\\/")
+    org_id = SITE_NODES[0]["@id"] if SITE_NODES else None
+    if org_id:
+        for node in graph:
+            if isinstance(node.get("publisher"), dict) and node["publisher"].get("@type") == "Organization":
+                node["publisher"] = {"@id": org_id}
+            if isinstance(node.get("author"), dict) and node["author"].get("@type") == "Organization":
+                node["author"] = {"@id": org_id}
+    return json.dumps({"@context": "https://schema.org", "@graph": SITE_NODES + graph}, ensure_ascii=False).replace("</", "<\\/")
 
 
 def faq_ld(faq):
@@ -187,12 +197,14 @@ POSTS = [
      "date": "2026-11-23",
      "title": "How to cut your LLM API bill: 6 token-saving techniques with examples",
      "short": "6 ways to cut your LLM API bill",
-     "description": "Prompt caching, model routing, shorter outputs, batch jobs, trimmed context and the right gateway: six ways to spend fewer dollars per token, with worked examples."},
+     "seo_title": "How to Cut Your LLM API Bill: 6 Token-Saving Techniques",
+     "description": "Prompt caching, model routing, shorter outputs, batch jobs, trimmed context and the right gateway: six ways to cut your LLM API bill, with examples."},
     {"slug": "gpt-researcher-cost-audit", "template": "posts/gpt-researcher-audit.html", "part": 2,
      "date": "2026-11-25",
      "title": "We audited GPT Researcher's LLM calls: a caching miss from two quote marks, and 4 other leaks",
      "short": "Auditing GPT Researcher's token use",
-     "description": "A line-by-line cost audit of the open-source GPT Researcher agent: a prompt caching miss, high reasoning effort on small jobs, paid retries and a drifting cost tracker, with fixes."},
+     "seo_title": "GPT Researcher LLM Cost Audit: 5 Token Leaks Found",
+     "description": "We audited the open-source GPT Researcher agent's LLM calls: a broken prompt cache, high reasoning effort on small jobs and paid retries, with fixes."},
 ]
 
 
@@ -219,6 +231,13 @@ def main():
     groups = [g for g in groups if g["models"]]
     max_save = max(m["save"] for m in models)
     domain = site["domain"].rstrip("/")
+    SITE_NODES[:] = [
+        {"@type": "Organization", "@id": domain + "/#org", "name": site["brand"], "url": domain + "/",
+         "logo": {"@type": "ImageObject", "url": domain + "/logo.svg"},
+         "description": "Daily-checked price comparison of LLM API gateways.",
+         "sameAs": site.get("same_as", [])},
+        {"@type": "WebSite", "@id": domain + "/#website", "name": site["brand"], "url": domain + "/",
+         "publisher": {"@id": domain + "/#org"}, "inLanguage": "en"}]
     base = ""
     checked_human = human_date(data["checked"])
     bench, brows = bench_rows(bench_raw, models)
@@ -273,8 +292,8 @@ def main():
     claude_save = min(m["save"] for m in models if m["maker"] == "Anthropic")
     title_h = f"SayGM vs OpenRouter: Claude for {claude_save}% less, same models"
     page = {
-        "title": "SayGM vs OpenRouter (2026): Cheaper OpenRouter Alternative",
-        "description": f"SayGM vs OpenRouter prices for Claude, GPT-6.2, Gemini 4 Neon, DeepSeek and more. Claude costs about {son['save'] if son else 51}% less on SayGM after OpenRouter's 5.5% fee.",
+        "title": "Cheaper Claude API: SayGM vs OpenRouter Prices (2026)",
+        "description": f"A cheaper OpenRouter alternative: Claude costs about {claude_save}% less on SayGM. Daily-checked prices for Claude, GPT-6.2, Gemini and open models.",
         "og_title": title_h, "url": url,
         "jsonld": jsonld([
             {"@type": "Article", "headline": title_h, "dateModified": data["checked"], "datePublished": "2026-11-22",
@@ -317,9 +336,9 @@ def main():
         mtitle = (f"{m['name']} API: {m['save']}% cheaper on SayGM than OpenRouter" if m["cheaper"]
                   else f"{m['name']} API prices: SayGM vs OpenRouter")
         mpage = {
-            "title": f"Cheapest {m['name']} API (2026): SayGM vs OpenRouter Prices",
+            "title": f"Cheapest {m['name']} API: SayGM vs OpenRouter (2026)",
             "description": (f"{m['name']} costs {m['f']['sg_in']} / {m['f']['sg_out']} per 1M tokens on SayGM vs {m['f']['or_in']} / {m['f']['or_out']} on OpenRouter with fees: "
-                            + (f"{m['save']}% less." if m["cheaper"] else "OpenRouter's cheapest route is currently cheaper.")),
+                            + (f"{m['save']}% less." if m["cheaper"] else "OpenRouter is cheaper now.")),
             "og_title": mtitle, "url": murl,
             "jsonld": jsonld([
                 {"@type": "Article", "headline": mtitle, "dateModified": data["checked"], "author": author_ld(site),
@@ -348,7 +367,7 @@ def main():
         p["date_human"] = human_date(p["date"])
     for p in POSTS:
         ppage = {
-            "title": p["title"], "description": p["description"], "og_title": p["title"], "url": p["url"],
+            "title": p.get("seo_title", p["title"]), "description": p["description"], "og_title": p["title"], "url": p["url"],
             "jsonld": jsonld([
                 {"@type": "BlogPosting", "headline": p["title"], "datePublished": p["date"], "dateModified": data["checked"],
                  "author": author_ld(site), "publisher": {"@type": "Organization", "name": site["brand"]},
@@ -372,7 +391,7 @@ def main():
     surl = domain + "/skill/"
     stitle = "LLM cost audit: free AI skill that finds wasted tokens"
     spage = {"title": f"Free LLM Cost Audit Skill for Claude | {site['brand']}",
-             "description": "A free Agent Skill that scans your code's LLM API calls for wasted tokens (caching, routing, batching, output limits) and estimates each fix's monthly saving in dollars.",
+             "description": "Free Agent Skill that scans your code's LLM API calls for wasted tokens (caching, routing, batching) and estimates each fix's monthly saving.",
              "og_title": stitle, "url": surl,
              "jsonld": jsonld([{"@type": "SoftwareApplication", "name": "llm-cost-audit", "applicationCategory": "DeveloperApplication",
                                 "operatingSystem": "Any", "softwareVersion": "1.1", "license": "https://opensource.org/licenses/MIT",
