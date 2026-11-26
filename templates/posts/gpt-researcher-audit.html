@@ -109,5 +109,14 @@ raise EmptyResponse()</code></pre>
 <p>Or let an agent do it: <a href="{{ base }}/skill/">the LLM cost audit skill</a> is free, runs locally and puts a dollar figure on each fix. This audit also showed us where the skill falls short: its scanner didn't recognise calls made through LangChain and the project's own wrapper, so we found these by reading the code. That's going into the next version.</p>
 <p class="small">Sources: <a href="https://github.com/assafelovic/gpt-researcher">GPT Researcher on GitHub</a> (Apache 2.0, commit 9d39a2f), <a href="https://developers.openai.com/api/docs/pricing">OpenAI API pricing</a>, <a href="https://saygm.com/models">SayGM prices</a>. Token counts are estimates from the project's default settings; we didn't run the agent.</p>
 </div></section>
+<section class="band tight" id="related" data-toc="Related"><div class="wrap">
+<h2>Related</h2>
+<ul>
+{% for p in posts if p.slug != post.slug %}<li><a href="{{ base }}/blog/{{ p.slug }}/">{{ p.title }}</a></li>
+{% endfor %}<li><a href="{{ base }}/models/claude-sonnet-5-5/">Claude Sonnet 5.5 prices: SayGM vs OpenRouter</a></li>
+<li><a href="{{ base }}/skill/">Free LLM cost audit skill</a></li>
+<li><a href="{{ base }}/">Compare prices for every model</a></li>
+</ul>
+</div></section>
 </article>
 {% endblock %}

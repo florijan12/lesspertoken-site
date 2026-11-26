@@ -153,5 +153,14 @@
 </ul>
 <p class="small">Sources: <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic pricing</a> (cache and batch rates), <a href="https://saygm.com/models">SayGM prices</a>, <a href="https://openrouter.ai/blog/simplifying-our-platform-fee">OpenRouter platform fee</a>. Dollar figures are recalculated from current prices each time the site updates; token counts in the examples are illustrative.</p>
 </div></section>
+<section class="band tight" id="related" data-toc="Related"><div class="wrap">
+<h2>Related</h2>
+<ul>
+{% for p in posts if p.slug != post.slug %}<li><a href="{{ base }}/blog/{{ p.slug }}/">{{ p.title }}</a></li>
+{% endfor %}<li><a href="{{ base }}/models/claude-sonnet-5-5/">Claude Sonnet 5.5 prices: SayGM vs OpenRouter</a></li>
+<li><a href="{{ base }}/skill/">Free LLM cost audit skill</a></li>
+<li><a href="{{ base }}/">Compare prices for every model</a></li>
+</ul>
+</div></section>
 </article>
 {% endblock %}
