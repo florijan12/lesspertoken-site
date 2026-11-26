@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a><a href="#contact">Contact</a>{% endblock %}
+{% block main %}
+<article class="post">
+<section class="band" id="top" data-toc="About"><div class="wrap">
+<h1>About {{ site.brand }}</h1>
+<p class="lede">{{ site.brand }} compares what the same AI models cost through different API gateways, checks the prices every day, and publishes audits of real projects that show where tokens get wasted. It's a small independent site, not part of SayGM, OpenRouter or any model maker.</p>
+</div></section>
+
+<section class="band tight" id="prices" data-toc="How we check prices"><div class="wrap">
+<h2>How we check prices</h2>
+<ul>
+<li><b>Every day, automatically.</b> A scheduled job reads SayGM's public model list and OpenRouter's per-provider price list for each of the {{ n_models }} models we track, then rebuilds the site. Every page shows the date of the last update.</li>
+<li><b>OpenRouter at its cheapest.</b> For open models, where several providers compete, we take the cheapest provider that is currently up, and we add OpenRouter's 5.5% card fee because that's what you pay when you top up by card.</li>
+<li><b>Big moves are held, not guessed.</b> If a price moves by more than 60% in a day, the job keeps the last confirmed price until someone checks it, and the page says when that price was last confirmed.</li>
+<li><b>List prices from the makers.</b> Anthropic, OpenAI and Google prices come from their own pricing pages, linked at the bottom of every page.</li>
+<li><b>When OpenRouter is cheaper, we say so.</b> Model pages flip their headline and verdict when SayGM isn't the cheaper option, and the price table marks it.</li>
+</ul>
+</div></section>
+
+<section class="band tight" id="money" data-toc="How we earn money"><div class="wrap">
+<h2>How we earn money</h2>
+<p>SayGM gives us a reward when someone signs up through our links and adds credit. Your price is the same either way, and we don't take payments from anyone to change a ranking or a verdict. We have no deal with OpenRouter, Anthropic, OpenAI or Google. Every page carries this disclosure at the top.</p>
+<p>That reward is why we can keep the price checks, the audits and the <a href="{{ base }}/skill/">free cost audit skill</a> free. The skill is MIT licensed and runs on your own machine.</p>
+</div></section>
+
+<section class="band tight" id="publish" data-toc="What we publish"><div class="wrap">
+<h2>What we publish</h2>
+<ul>
+{% for p in posts %}<li><a href="{{ base }}/blog/{{ p.slug }}/">{{ p.title }}</a> ({{ p.date_human }})</li>
+{% endfor %}</ul>
+<p>Audits name the exact commit we read and say which numbers are estimates. When we find a bug in an open-source project, we also report it to its maintainers, with the fix.</p>
+</div></section>
+
+<section class="band tight" id="contact" data-toc="Contact"><div class="wrap">
+<h2>Contact and corrections</h2>
+<p>Spotted a wrong price, a broken link or an unfair comparison? Send a message to <a href="https://x.com/lesspertoken" rel="me">@lesspertoken on X</a>. For the cost audit skill, open an issue on <a href="https://github.com/florijan12/llm-cost-audit/issues">its GitHub repository</a>. We correct confirmed price errors as soon as we can.</p>
+</div></section>
+</article>
+{% endblock %}
