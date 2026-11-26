@@ -50,6 +50,15 @@
 {{ mx.routes() }}
 </div></section>
 
+<section class="band tight" id="spend-less" data-toc="Spend less"><div class="wrap">
+<h2>Spend less on {{ m.name }} beyond the price</h2>
+<ul>
+<li><a href="{{ base }}/blog/token-saving-basics/">6 ways to cut your LLM API bill</a>: caching, routing, shorter outputs and batching, with worked examples.</li>
+{% if m.maker == "OpenAI" %}<li><a href="{{ base }}/blog/gpt-researcher-cost-audit/">We audited GPT Researcher's LLM calls</a>: a real agent on GPT Sol, and the five leaks we found.</li>
+{% endif %}<li><a href="{{ base }}/skill/">Free LLM cost audit skill</a>: point Claude at your code and get each fix's monthly saving.</li>
+</ul>
+</div></section>
+
 <section class="band tight" id="faq" data-toc="FAQ"><div class="wrap">
 <h2>FAQ</h2>
 <div class="faq">

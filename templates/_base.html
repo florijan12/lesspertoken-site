@@ -23,11 +23,10 @@
 <meta name="twitter:title" content="{{ page.og_title }}">
 <meta name="twitter:description" content="{{ page.description }}">
 <meta name="twitter:image" content="{{ site.domain }}/og.png?v={{ data.checked }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="{{ base }}/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">{{ page.jsonld|safe }}</script>
 <style>
+@font-face{font-family:Manrope;font-style:normal;font-display:swap;font-weight:200 800;src:url({{ base }}/manrope-latin.woff2) format("woff2")}
 /* VOICE work: a plain, audited price comparison a developer can act on in one minute
    IDEA an audited rate sheet: the saving per model is the headline; the logo is two bars, the long one cut short
    PICTURE paired cost bars per model with a large saving percentage on each row
