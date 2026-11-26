@@ -6,13 +6,13 @@
 <h1>LLM cost audit: a free AI skill that finds wasted tokens</h1>
 <p class="lede">Point Claude (or any agent that supports Agent Skills) at your project and ask "why is our LLM bill so high?". It scans your code's API calls, flags the waste and tells you in dollars what each fix would save.</p>
 <p><a class="btn" href="{{ base }}/llm-cost-audit.skill" download>Download llm-cost-audit.skill</a></p>
-<p class="small">Version 1.1 · MIT license · Python 3.8+, no packages · Prices inside checked {{ skill_prices_human }}</p>
+<p class="small">Version 1.2 · MIT license · Python 3.8+, no packages · Prices inside checked {{ skill_prices_human }}</p>
 </div></section>
 
 <section class="band tight" id="what" data-toc="What it does"><div class="wrap">
 <h2>What it does</h2>
 <ul>
-<li><b>Scans</b> the codebase for Anthropic, OpenAI, Gemini, LiteLLM and Vercel AI SDK calls.</li>
+<li><b>Scans</b> the codebase for Anthropic, OpenAI, Gemini, LiteLLM and Vercel AI SDK calls, and for calls made through LangChain and Pydantic AI. It warns when caching is switched on for direct Anthropic only, the gap we found in <a href="{{ base }}/blog/browser-use-cost-audit/">browser-use</a>.</li>
 <li><b>Flags</b> likely waste: no caching, timestamps that break the cache, unbounded chat history, frontier models on simple tasks, missing output limits, per-item loops that could be batch jobs.</li>
 <li><b>Estimates</b> the monthly saving of each fix from real per-token prices.</li>
 <li><b>Writes a report</b> ordered by dollars saved, with before and after code, and applies the fixes if you ask.</li>
