@@ -155,9 +155,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.03,
-        "out": 5.15,
-        "cache": 0.0515
+        "in": 1.0094,
+        "out": 5.047,
+        "cache": 0.05047
       },
       "openrouter": {
         "in": 2.0,
