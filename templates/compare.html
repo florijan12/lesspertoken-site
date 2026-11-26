@@ -64,18 +64,18 @@
 {% endif %}
 
 <section class="band tight" id="privacy" data-toc="Privacy"><div class="wrap">
-<h2>Privacy you can check, not just trust</h2>
+<h2>How SayGM handles your prompts</h2>
 <div class="cols">
 <div>
-<p>SayGM's gateway runs inside a sealed Intel TDX enclave. Your connection is decrypted only inside it, so SayGM's staff and the server host can't read your prompts. Anyone can confirm this with a public attestation check.</p>
+<p>SayGM's gateway runs inside an Intel TDX enclave, where SayGM can't read your prompts. They stay sealed from SayGM and the host machine until they reach the model provider. An attestation quote shows the gateway is running on genuine Intel TDX hardware.</p>
 <p>How far the seal reaches depends on the model you pick. SayGM's models list tells your code which route each model takes, so you can choose before you send.</p>
 </div>
 {{ mx.routes() }}
 </div>
 <div class="three" style="margin-top:28px">
-<div><h3>No prompts in logs</h3><p>Prompts and replies are left out of every record SayGM keeps. Diagnostics such as latency and errors are kept for 30 days.</p></div>
-<div><h3>Automatic redaction</h3><p>Switch on guardrails for a key and personal data or secrets are replaced with placeholders inside the enclave before the model sees them, then restored in the reply.</p></div>
-<div><h3>Verify it yourself</h3><p>Call <code>/attestation/info</code> with a random value and check the signed quote with any TDX verifier. No account needed.</p></div>
+<div><h3>No prompts in logs</h3><p>Prompts and completions stay out of every record SayGM keeps. Diagnostics such as latency, retries and error types are kept for 30 days.</p></div>
+<div><h3>Optional guardrails</h3><p>Switch on guardrails for a key and the personal data or secrets they recognise are replaced inside the enclave before the model sees them. They match the patterns they scan for, so treat them as an extra layer, not a guarantee.</p></div>
+<div><h3>What attestation covers</h3><p>It shows the gateway runs on genuine Intel TDX hardware with an approved SayGM image. It doesn't cover what a model provider does after the hand-off, and SayGM says its lower-level verification tools are still being prepared for general use.</p></div>
 </div>
 </div></section>
 

@@ -36,7 +36,7 @@
 {% macro routes() %}
 <div class="routes">
 <div class="route"><h3>Claude, GPT, Gemini and most open models</h3><div class="path"><span class="step">Your app</span><span class="arrow">→</span><span class="step sealed">SayGM, sealed</span><span class="arrow">→</span><span class="step open">Model provider</span></div><p class="small">The model provider handles your request under its own API terms.</p></div>
-<div class="route"><h3>Confidential models (<code>-tee</code>)</h3><div class="path"><span class="step">Your app</span><span class="arrow">→</span><span class="step sealed">SayGM, sealed</span><span class="arrow">→</span><span class="step sealed">Model, sealed</span></div><p class="small">The model runs in an enclave too, so the prompt stays sealed from request to response. Kimi, GLM, Qwen and DeepSeek have <code>-tee</code> versions, with smaller discounts.</p></div>
+<div class="route"><h3>Confidential models (<code>-tee</code>)</h3><div class="path"><span class="step">Your app</span><span class="arrow">→</span><span class="step sealed">SayGM, sealed</span><span class="arrow">→</span><span class="step sealed">Model, sealed</span></div><p class="small">The model runs in an enclave too, so the prompt stays sealed through inference. Kimi, GLM, Qwen and DeepSeek have <code>-tee</code> versions, with smaller discounts.</p></div>
 </div>
 {% endmacro %}
 

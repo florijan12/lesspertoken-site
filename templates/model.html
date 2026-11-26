@@ -42,9 +42,9 @@
 <div>
 <h2>Is {{ m.name }} private on SayGM?</h2>
 {% if m.tee %}
-<p>The standard {{ m.name }} route is sealed through SayGM's gateway, then processed by the serving provider under its API terms. SayGM also offers a confidential <code>-tee</code> version that keeps the prompt sealed from request to response, at a smaller discount.</p>
+<p>The standard {{ m.name }} route is sealed through SayGM's gateway, then processed by the serving provider under its API terms. SayGM also offers a confidential <code>-tee</code> version that stays sealed through inference too, at a smaller discount.</p>
 {% else %}
-<p>Your prompt is sealed while it passes through SayGM's gateway, so SayGM's staff and server host can't read it. The provider that runs {{ m.name }} then processes it under its own API terms, as with any gateway. Switch on redaction to strip personal data and secrets before they leave the enclave.</p>
+<p>Your prompt is sealed while it passes through SayGM's gateway, so SayGM's staff and server host can't read it. The provider that runs {{ m.name }} then processes it under its own API terms, as with any gateway. Optional guardrails can replace the personal data and secrets they recognise before the request leaves the enclave.</p>
 {% endif %}
 </div>
 {{ mx.routes() }}
