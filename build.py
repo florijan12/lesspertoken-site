@@ -345,6 +345,8 @@ def main():
                  "Prompts are sealed inside an Intel TDX enclave where SayGM can't read them, and prompts and completions stay out of every record SayGM keeps. On Claude, GPT and Gemini, the model provider processes them under its API terms, as with any gateway. Confidential <code>-tee</code> models stay sealed through inference too."),
         faq_item("What are the best OpenRouter alternatives?",
                  "It depends on what you need. SayGM for the lowest prices on Claude and GPT, OpenRouter itself for the widest catalogue, Requesty for EU data residency, Venice for privacy-first use with end-to-end encrypted open models, and DeepInfra or Together AI for open models at volume or fine-tuning."),
+        faq_item("Can SayGM prices go above the list price?", "No. Providers compete for every request, so prices follow the market but never go above the model maker's list price. The date at the top shows our latest check."),
+        faq_item("Can I keep OpenRouter as a backup?", "Yes. SayGM uses the same API format, with pay as you go and no subscription, so you can keep your OpenRouter key as a ready fallback."),
         faq_item("Does SayGM have a free tier?", "No. There is also no subscription and no top-up fee. You pay per token."),
         faq_item("Does SayGM work with existing code?",
                  "Yes. Point your OpenAI SDK at https://api.saygm.com/v1, or your Anthropic or Gemini SDK at https://api.saygm.com, and use a SayGM key.",
