@@ -254,9 +254,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 0.9888,
-        "out": 4.944,
-        "cache": 0.04944
+        "in": 0.9373,
+        "out": 4.6865,
+        "cache": 0.046865
       },
       "openrouter": {
         "in": 2.0,
@@ -454,9 +454,9 @@
         "cache": 0.006
       },
       "saygm": {
-        "in": 0.08343,
-        "out": 0.33372,
-        "cache": 0.001669
+        "in": 0.07725,
+        "out": 0.309,
+        "cache": 0.001545
       },
       "openrouter": {
         "in": 0.0507,
@@ -466,7 +466,7 @@
       },
       "id_verified": true,
       "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-26",
+      "openrouter_checked": "2026-11-27",
       "tier": "open",
       "clouds": {
         "google": {
@@ -522,9 +522,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.85091,
-        "out": 9.25455,
-        "cache": 0.185091
+        "in": 1.84473,
+        "out": 9.22365,
+        "cache": 0.184473
       },
       "openrouter": {
         "in": 0.25,
