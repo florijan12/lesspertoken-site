@@ -62,7 +62,7 @@ def enrich(m, fee):
     if rows:
         best = min(r["blend"] for r in rows)
         top = [r for r in rows if abs(r["blend"] - best) < 1e-9]
-        m["cloud"] = {"in": top[0]["in"], "out": top[0]["out"], "where": " · ".join(short[r["key"]] for r in top),
+        m["cloud"] = {"in": top[0]["in"], "out": top[0]["out"], "where": ", ".join(short[r["key"]] for r in top),
                       "sg_save": round((1 - sg_blend / best) * 100)}
     else:
         m["cloud"] = None
