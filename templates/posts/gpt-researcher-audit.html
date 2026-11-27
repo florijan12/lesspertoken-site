@@ -6,7 +6,7 @@
 <section class="band" id="top" data-toc="Intro"><div class="wrap">
 <p class="crumb"><a href="{{ base }}/blog/">Blog</a> › Token saving, part {{ post.part }}</p>
 <h1>{{ post.title }}</h1>
-<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %} · {{ post.date_human }} · Prices updated {{ checked_human }}</p>
+<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %}, {{ post.date_human }}. Prices checked {{ checked_human }}.</p>
 <p class="lede">Part 1 listed six ways to cut an LLM bill. This time we took one real, popular open-source agent and looked for wasted tokens line by line. The biggest finding was a caching miss caused by two prompts that differ by two quote marks.</p>
 <p class="series">Part {{ post.part }} of a series on spending less per token. Read <a href="{{ base }}/blog/token-saving-basics/">part 1: six token-saving techniques</a> first if you're new to caching.</p>
 </div></section>

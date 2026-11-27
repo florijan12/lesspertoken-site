@@ -7,7 +7,7 @@
 <section class="band" id="top" data-toc="Intro"><div class="wrap">
 <p class="crumb"><a href="{{ base }}/blog/">Blog</a> › Token saving, part {{ post.part }}</p>
 <h1>{{ post.title }}</h1>
-<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %} · {{ post.date_human }} · Prices updated {{ checked_human }}</p>
+<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %}, {{ post.date_human }}. Prices checked {{ checked_human }}.</p>
 <p class="lede">browser-use is one of the most cost-aware agent codebases we have read. It still has one leak: run it on Claude through OpenRouter or Amazon Bedrock and every step pays full price for the whole history, screenshots included. Turning the cache on should cut that bill by more than half.</p>
 <p class="series">Part {{ post.part }} of a series on spending less per token. <a href="{{ base }}/blog/gpt-researcher-cost-audit/">Part 2</a> audited GPT Researcher; <a href="{{ base }}/blog/token-saving-basics/">part 1</a> explains caching if you're new to it.</p>
 </div></section>

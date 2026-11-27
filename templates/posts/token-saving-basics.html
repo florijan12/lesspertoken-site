@@ -6,7 +6,7 @@
 <section class="band" id="top" data-toc="Intro"><div class="wrap">
 <p class="crumb"><a href="{{ base }}/blog/">Blog</a> › Token saving, part {{ post.part }}</p>
 <h1>{{ post.title }}</h1>
-<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %} · {{ post.date_human }} · Prices updated {{ checked_human }}</p>
+<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %}, {{ post.date_human }}. Prices checked {{ checked_human }}.</p>
 <p class="lede">Most LLM bills aren't high because the model is expensive. They're high because the same tokens get sent, generated and paid for again and again. Here are six fixes, each with a worked example, ordered roughly from biggest saving to smallest effort.</p>
 <p class="series">Part {{ post.part }} of a series on spending less per token. All examples use {{ ex.model }} at Anthropic's list price ({{ ex.L.list_in }} input, {{ ex.L.list_out }} output per million tokens) unless noted.</p>
 </div></section>
