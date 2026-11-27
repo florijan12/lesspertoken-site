@@ -44,8 +44,7 @@
 {% if site.author.name %}
 <section class="band tight" id="author"><div class="wrap">
 <div class="author">
-<div class="avatar" aria-hidden="true">{{ site.author.name[:1] }}</div>
-<div><h3>About the author</h3><p><b>{% if site.author.url %}<a href="{{ site.author.url }}" rel="author">{{ site.author.name }}</a>{% else %}{{ site.author.name }}{% endif %}</b>{% if site.author.bio %}. {{ site.author.bio }}{% endif %}</p></div>
+<p>Written by {% if site.author.url %}<a href="{{ site.author.url }}" rel="author">{{ site.author.name }}</a>{% else %}{{ site.author.name }}{% endif %}{% if site.author.bio %}, who {{ site.author.bio[0]|lower }}{{ site.author.bio[1:] }}{% endif %}</p>
 </div>
 </div></section>
 {% endif %}

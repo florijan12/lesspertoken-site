@@ -4,7 +4,7 @@
 {% block main %}
 <section class="band" id="overview" data-toc="Savings overview"><div class="wrap">
 <h1>SayGM vs OpenRouter: Claude for {{ claude_save }}% less, same models</h1>
-<p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }} · <a href="#method">How we test</a></p>
+<p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %}, prices checked {{ checked_human }}. <a href="#method">How we test</a></p>
 <p class="lede">Claude Fable, Opus, Sonnet and Haiku cost {{ claude_save }}% less on SayGM than on OpenRouter, every day, with the same models from Anthropic. SayGM works like OpenRouter: one API key for Claude, GPT, Gemini and open models, through a gateway that can't read your prompts.</p>
 <div class="hi-line">
 <a class="btn" href="/go/{{ site.gop }}-hero/" rel="sponsored noopener" target="_blank">Try SayGM</a>
@@ -26,7 +26,7 @@
 <h2>Cut the waste first: our audits</h2>
 <p>A lower price per token helps most once you stop paying for tokens you don't need. We read popular open-source AI projects line by line and publish what we find, with fixes.</p>
 <ul class="audits">
-{% for p in posts %}<li><a href="{{ base }}/blog/{{ p.slug }}/"><b>{{ p.title }}</b></a><span>{{ p.date_human }} · {{ p.og_stat }}</span></li>
+{% for p in posts %}<li><a href="{{ base }}/blog/{{ p.slug }}/"><b>{{ p.title }}</b></a><span>{{ p.og_stat }}, {{ p.date_human }}</span></li>
 {% endfor %}<li><a href="{{ base }}/skill/"><b>Free LLM cost audit skill</b></a><span>Run the same checks on your own code. MIT licensed, runs locally.</span></li>
 </ul>
 </div></section>
@@ -81,21 +81,13 @@
 </div>
 {{ mx.routes() }}
 </div>
-<div class="three" style="margin-top:28px">
-<div><h3>No prompts in logs</h3><p>Prompts and completions stay out of every record SayGM keeps. Diagnostics such as latency, retries and error types are kept for 30 days.</p></div>
-<div><h3>Optional guardrails</h3><p>Switch on guardrails for a key and the personal data or secrets they recognise are replaced inside the enclave before the model sees them. They match the patterns they scan for, so treat them as an extra layer, not a guarantee.</p></div>
-<div><h3>What attestation covers</h3><p>It shows the gateway runs on genuine Intel TDX hardware with an approved SayGM image. It doesn't cover what a model provider does after the hand-off, and SayGM says its lower-level verification tools are still being prepared for general use.</p></div>
-</div>
+<dl class="notes">
+<dt>Logs</dt><dd>Prompts and completions stay out of every record SayGM keeps. Diagnostics such as latency, retries and error types are kept for 30 days.</dd>
+<dt>Guardrails, optional</dt><dd>Switch them on for a key and the personal data or secrets they recognise are replaced inside the enclave before the model sees them. They match the patterns they scan for, so treat them as an extra layer, not a guarantee.</dd>
+<dt>What attestation covers</dt><dd>It shows the gateway runs on genuine Intel TDX hardware with an approved SayGM image. It doesn't cover what a model provider does after the hand-off, and SayGM says its lower-level verification tools are still being prepared for general use.</dd>
+</dl>
 </div></section>
 
-<section class="band tight" id="good-to-know" data-toc="Good to know"><div class="wrap">
-<h2>Good to know before you switch</h2>
-<div class="three">
-<div><h3>Market pricing, capped at list</h3><p>Providers compete for every request, so prices follow the market but never go above the model maker's list price. The date at the top shows our latest check.</p></div>
-<div><h3>Pick your privacy level</h3><p>Claude, GPT and Gemini requests are sealed through SayGM, then processed by the model provider under its API terms, as with any gateway. For data that must stay sealed end to end, choose a <code>-tee</code> model.</p></div>
-<div><h3>Easy to try alongside OpenRouter</h3><p>74 models, pay as you go, no subscription. It uses the same API format, so you can keep your OpenRouter key as a ready fallback.</p></div>
-</div>
-</div></section>
 
 <section class="band tight" id="method" data-toc="How we test"><div class="wrap">
 <h2>How we test</h2>
@@ -117,7 +109,7 @@
 <section class="band tight" id="models" data-toc="All models"><div class="wrap">
 <h2>Prices by model</h2>
 <ul class="links">
-{% for m in models %}<li><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a><span>{{ m.save_badge }}</span></li>
+{% for m in models %}<li><a href="{{ base }}/models/{{ m.slug }}/">{{ m.name }}</a><span{% if not m.cheaper %} class="worse" title="Costs more on SayGM than on OpenRouter"{% endif %}>{{ m.save_badge }}</span></li>
 {% endfor %}
 </ul>
 </div></section>

@@ -6,7 +6,7 @@
 <section class="band" id="overview" data-toc="Prices"><div class="wrap">
 <p class="crumb"><a href="{{ base }}/">SayGM vs OpenRouter</a> › {{ m.name }}</p>
 <h1>{% if m.cheaper %}{{ m.name }} API: {{ m.save }}% cheaper on SayGM than OpenRouter{% else %}{{ m.name }} API: OpenRouter is currently cheaper{% endif %}</h1>
-<p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %} · Prices updated {{ checked_human }}</p>
+<p class="byline">By {% if site.author.name %}<a href="#author">{{ site.author.name }}</a>{% else %}{{ site.brand }}{% endif %}, prices checked {{ checked_human }}</p>
 <p class="lede">{{ m.name }} costs {{ m.f.sg_in }} input and {{ m.f.sg_out }} output per million tokens on SayGM, against {{ m.f.or_in }} and {{ m.f.or_out }} on OpenRouter once its card fee is added.</p>
 <div class="hi-line">
 <a class="btn" href="/go/{{ site.gop }}-hero/" rel="sponsored noopener" target="_blank">Try {{ m.name }} on SayGM</a>
