@@ -1,6 +1,6 @@
 {% extends "_base.html" %}
 {% import "_macros.html" as mx %}
-{% block nav %}<a href="#prices">Prices</a><a href="#calculator">Calculator</a><a href="#alternatives">Alternatives</a><a href="#switch">Switch</a><a href="#privacy">Privacy</a><a href="#method">How we test</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
+{% block nav %}<a href="{{ base }}/audit/">Free audit</a><a href="#prices">Prices</a><a href="#calculator">Calculator</a><a href="#alternatives">Alternatives</a><a href="#switch">Switch</a><a href="#privacy">Privacy</a><a href="#method">How we test</a><a href="#faq">FAQ</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
 {% block main %}
 <section class="band" id="overview" data-toc="Savings overview"><div class="wrap">
 <h1>SayGM vs OpenRouter: Claude for {{ claude_save }}% less, same models</h1>
@@ -8,7 +8,7 @@
 <p class="lede">Claude Fable, Opus, Sonnet and Haiku cost {{ claude_save }}% less on SayGM than on OpenRouter, every day, with the same models from Anthropic. SayGM works like OpenRouter: one API key for Claude, GPT, Gemini and open models, through a gateway that can't read your prompts.</p>
 <div class="hi-line">
 <a class="btn" href="/go/{{ site.gop }}-hero/" rel="sponsored noopener" target="_blank">Try SayGM</a>
-<span class="small">No subscription, no top-up fee.</span>
+<span class="small">No subscription, no top-up fee. Or <a href="{{ base }}/audit/">get a free cost audit of your code</a>.</span>
 </div>
 <div class="chart">
 <div class="chart-head">
@@ -20,16 +20,19 @@
 </div>
 </div></section>
 
-{{ mx.switch(site, "claude-sonnet-5-5", "Claude Sonnet 5.5", true) }}
-
 <section class="band tight" id="audits" data-toc="Audits"><div class="wrap">
-<h2>Cut the waste first: our audits</h2>
-<p>A lower price per token helps most once you stop paying for tokens you don't need. We read popular open-source AI projects line by line and publish what we find, with fixes.</p>
+<h2>Cut the waste first: free cost audits</h2>
+<p>A lower price per token helps most once you stop paying for tokens you don't need. We read popular open-source AI projects line by line and publish what we find, with fixes. Send us your repo and we'll do the same for you, free.</p>
+<div class="hi-line" style="margin:4px 0 18px"><a class="btn" href="{{ base }}/audit/">Get a free audit of your repo</a></div>
 <ul class="audits">
 {% for p in posts %}<li><a href="{{ base }}/blog/{{ p.slug }}/"><b>{{ p.title }}</b></a><span>{{ p.og_stat }}, {{ p.date_human }}</span></li>
 {% endfor %}<li><a href="{{ base }}/skill/"><b>Free LLM cost audit skill</b></a><span>Run the same checks on your own code. MIT licensed, runs locally.</span></li>
 </ul>
 </div></section>
+
+{{ mx.switch(site, "claude-sonnet-5-5", "Claude Sonnet 5.5", true) }}
+
+
 
 
 <section class="band tight" id="prices" data-toc="Prices"><div class="wrap">
