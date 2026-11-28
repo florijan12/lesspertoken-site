@@ -317,7 +317,7 @@ def main():
         models=models, bench=bench, calc=True,
     )
     refs = site.get("referral_urls", {})
-    go_ref = {"home": "site", "model": "site", "about": "site", "blog": "blog", "skill": "skill"}
+    go_ref = {"home": "site", "model": "site", "about": "site", "audit": "site", "blog": "blog", "skill": "skill"}
     tagged = lambda gop: dict(site, gop=gop, referral_url=refs.get(go_ref[gop], site["referral_url"]))
     common["site"] = tagged("home")
 
@@ -484,6 +484,17 @@ def main():
     (out / "about" / "index.html").write_text(env.get_template("about.html").render(
         **{**common, "site": tagged("about"), "calc": False}, page=apage, posts=POSTS, n_models=len(models)))
 
+    # ---- free audit request page ----
+    qurl = domain + "/audit/"
+    qpage = {"title": "Free LLM Cost Audit of Your GitHub Repo | " + site["brand"],
+             "description": "Send a public GitHub repo that calls Claude, GPT or Gemini. We read its LLM calls by hand and reply with fixes and what each saves per month. Free.",
+             "og_title": "Free LLM cost audit of your repo", "url": qurl,
+             "jsonld": jsonld([{"@type": "WebPage", "name": "Free LLM cost audit", "url": qurl,
+                                "publisher": {"@id": domain + "/#org"}}])}
+    (out / "audit").mkdir()
+    (out / "audit" / "index.html").write_text(env.get_template("audit.html").render(
+        **{**common, "site": tagged("audit"), "calc": False}, page=qpage, posts=POSTS))
+
     # ---- /go/ links: one tiny page per button, so analytics counts clicks per placement ----
     spots = ["hero", "switch", "calc", "footer", "toc"]
     go_tpl = ('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow">'
@@ -502,7 +513,7 @@ def main():
 
     # ---- sitemap, robots, static files ----
     urls = ([domain + "/"] + [f"{domain}/models/{m['slug']}/" for m in models]
-            + [domain + "/blog/"] + [p["url"] for p in POSTS] + [surl, aurl])
+            + [domain + "/blog/"] + [p["url"] for p in POSTS] + [surl, aurl, qurl])
     (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
         "".join(f"  <url><loc>{u}</loc><lastmod>{data['checked']}</lastmod></url>\n" for u in urls) + "</urlset>\n")
     (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /go/\nSitemap: {domain}/sitemap.xml\n")
