@@ -254,8 +254,8 @@ POSTS = [
      "date": "2026-11-26",
      "title": "We audited browser-use: Claude on OpenRouter or Bedrock pays full price for every step",
      "short": "Auditing browser-use's token use",
-     "seo_title": "browser-use Cost Audit: No Prompt Caching on OpenRouter & Bedrock",
-     "description": "browser-use only turns on prompt caching for Claude on the direct Anthropic API. On OpenRouter or Bedrock every step pays full price. The fix, and what it saves.",
+     "seo_title": "browser-use Cost Audit: No Caching on OpenRouter & Bedrock",
+     "description": "browser-use only caches Claude prompts on the direct Anthropic API. On OpenRouter or Bedrock every step pays full price. The fix and what it saves.",
      "og_head": "We audited browser-use's LLM calls", "og_stat": "Claude on OpenRouter or Bedrock: no prompt cache"},
     {"slug": "mem0-cost-audit", "template": "posts/mem0-audit.html", "part": 4,
      "date": "2026-11-28",
@@ -408,7 +408,8 @@ def main():
         mtitle = (f"{m['name']} API: {m['save']}% cheaper on SayGM than OpenRouter" if m["cheaper"]
                   else f"{m['name']} API prices: SayGM vs OpenRouter")
         mpage = {
-            "title": f"Cheapest {m['name']} API: SayGM vs OpenRouter (2026)",
+            "title": (f"Cheapest {m['name']} API: SayGM vs OpenRouter (2026)"
+                      if len(m['name']) <= 20 else f"Cheapest {m['name']} API: SayGM vs OpenRouter"),
             "description": (f"{m['name']} costs {m['f']['sg_in']} / {m['f']['sg_out']} per 1M tokens on SayGM vs {m['f']['or_in']} / {m['f']['or_out']} on OpenRouter with fees: "
                             + (f"{m['save']}% less." if m["cheaper"] else "OpenRouter is cheaper now.")),
             "og_title": mtitle, "url": murl,
