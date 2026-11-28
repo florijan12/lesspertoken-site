@@ -1,5 +1,5 @@
 {
-  "checked": "2026-11-27",
+  "checked": "2026-11-28",
   "openrouter_card_fee": 0.055,
   "note": "Prices are USD per 1M tokens. list = model maker's list price. openrouter = OpenRouter's per-token price before its credit fee. cache = cached input (cache read). null = not published. update_prices.py refreshes saygm and openrouter blocks; check the *_id fields with `python update_prices.py --list` before the first run.",
   "models": [
@@ -26,8 +26,8 @@
         "cache": 0.2
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -44,7 +44,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "claude-opus-5-5",
@@ -69,8 +69,8 @@
         "cache": 0.2
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -93,7 +93,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "claude-sonnet-5-5",
@@ -118,8 +118,8 @@
         "cache": 0.1
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -142,7 +142,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "claude-haiku-5-5",
@@ -166,8 +166,8 @@
         "cache": 0.01
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -190,7 +190,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "gpt-6-2-astra",
@@ -215,8 +215,8 @@
         "cache": 0.4
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -239,7 +239,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "gpt-6-2-sol",
@@ -264,8 +264,8 @@
         "cache": 0.1
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -288,7 +288,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "gemini-4-neon",
@@ -314,8 +314,8 @@
         "cache": 0.15
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -326,7 +326,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "gemini-4-argon",
@@ -351,8 +351,8 @@
         "cache": 0.1
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -363,7 +363,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "gemini-3-8-flash",
@@ -387,8 +387,8 @@
         "cache": 0.0825
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "frontier",
       "or_estimate": false,
       "clouds": {
@@ -399,7 +399,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "deepseek-v4-1-flash-1017",
@@ -438,7 +438,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "deepseek-v4-1-flash",
@@ -465,8 +465,8 @@
         "provider": "Baidu (83% off)"
       },
       "id_verified": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "open",
       "clouds": {
         "google": {
@@ -476,7 +476,7 @@
           "region": "global"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "qwen3-8-27b",
@@ -503,11 +503,11 @@
       },
       "id_verified": true,
       "tee": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "open",
       "clouds": {},
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "kimi-k3",
@@ -522,9 +522,9 @@
         "cache": null
       },
       "saygm": {
-        "in": 1.84473,
-        "out": 9.22365,
-        "cache": 0.184473
+        "in": 1.6995,
+        "out": 8.4975,
+        "cache": 0.16995
       },
       "openrouter": {
         "in": 0.25,
@@ -534,8 +534,8 @@
       },
       "id_verified": true,
       "tee": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "open",
       "clouds": {
         "aws": {
@@ -545,7 +545,7 @@
           "region": "us-east-2"
         }
       },
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     },
     {
       "slug": "glm-5-3-flash",
@@ -572,11 +572,11 @@
       },
       "id_verified": true,
       "tee": true,
-      "saygm_checked": "2026-11-27",
-      "openrouter_checked": "2026-11-27",
+      "saygm_checked": "2026-11-28",
+      "openrouter_checked": "2026-11-28",
       "tier": "open",
       "clouds": {},
-      "clouds_checked": "2026-11-27"
+      "clouds_checked": "2026-11-28"
     }
   ]
 }
