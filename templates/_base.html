@@ -202,12 +202,13 @@ footer a:hover{color:var(--ink)}
 .toc .tbtn:hover{opacity:.9;color:var(--bg)}}
 @media(prefers-reduced-motion:reduce){.fill{transition:none}}
 .post ul{max-width:66ch;padding-left:1.2em;margin:0 0 16px}
-.audits{list-style:none;padding:0;margin:16px 0 0;max-width:800px;display:grid;gap:10px}
-.audits li{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 18px;border:1px solid var(--rule);border-radius:10px;background:var(--card);box-shadow:var(--shadow-sm);transition:all .15s ease}
-.audits li:hover{border-color:var(--mute);transform:translateY(-1px)}
-.audits a{text-decoration:none;color:var(--ink);font-weight:600;font-size:14.5px}
+.audits,.post ul.audits{list-style:none;padding:0;margin:16px 0 0;max-width:800px;display:grid;gap:10px}
+.audits li{display:block;margin:0;padding:14px 18px;border:1px solid var(--rule);border-radius:10px;background:var(--card);box-shadow:var(--shadow-sm);transition:border-color .15s ease}
+.audits li:hover{border-color:var(--mute)}
+.audits a{display:block;text-decoration:none;color:var(--ink);font-weight:600;font-size:15px;line-height:1.4}
+.audits a b{font-weight:600}
 .audits a:hover{text-decoration:underline}
-.audits span{font-size:12.5px;color:var(--mute);white-space:nowrap}
+.audits span{display:block;margin-top:4px;font-size:13px;line-height:1.45;color:var(--mute)}
 .post li{margin-bottom:8px;color:var(--text-secondary);line-height:1.6}
 .post h2{margin-top:24px;margin-bottom:12px}
 .series{font-size:13.5px;border-left:3px solid var(--good);padding:4px 0 4px 14px;color:var(--mute);margin-bottom:16px}
