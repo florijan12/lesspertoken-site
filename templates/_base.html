@@ -132,7 +132,7 @@ tbody tr:hover td{background:var(--soft)}
 .calc{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);gap:clamp(24px,4vw,48px);background:var(--card);padding:clamp(20px,3.5vw,36px);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow-card)}
 .field{display:grid;gap:6px;margin-bottom:16px}
 label,.label{font-weight:600;font-size:13.5px;color:var(--ink)}
-select,input[type=number],input[type=search]{font:inherit;font-size:14px;min-height:40px;padding:8px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;transition:border-color .15s,box-shadow .15s}
+select,input[type=number],input[type=search],input[type=url],input[type=text],textarea{font:inherit;font-size:14px;min-height:40px;padding:8px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;transition:border-color .15s,box-shadow .15s}
 select:focus,input[type=number]:focus,input[type=search]:focus{outline:none;border-color:#3b82f6;box-shadow:var(--focus-ring)}
 input[type=range]{width:100%;accent-color:var(--good);height:6px;cursor:pointer}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
@@ -242,7 +242,7 @@ footer a:hover{color:var(--ink)}
 </main>
 <footer class="band"><div class="wrap">
 <div><p><b>Sources:</b> <a href="https://saygm.com/models">SayGM models and prices</a>, <a href="https://saygm.com/privacy">SayGM privacy model</a>, <a href="https://openrouter.ai/blog/simplifying-our-platform-fee">OpenRouter platform fee</a>, <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic pricing</a>, <a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini pricing</a>. Prices updated {{ checked_human }}.</p></div>
-<div><p>Affiliate links earn us a reward from SayGM. We are not affiliated with OpenRouter, Anthropic, OpenAI or Google. Product names are trademarks of their owners. © {{ year }} {{ site.brand }}. <a href="{{ base }}/about/">About and contact</a></p></div>
+<div><p>Affiliate links earn us a reward from SayGM. We are not affiliated with OpenRouter, Anthropic, OpenAI or Google. Product names are trademarks of their owners. © {{ year }} {{ site.brand }}. <a href="{{ base }}/about/">About and contact</a>. <a href="{{ base }}/audit/">Free cost audit</a></p></div>
 </div></footer>
 <script>
 {
