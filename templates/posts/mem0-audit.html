@@ -1,0 +1,119 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="{{ base }}/blog/">Blog</a><a href="#leak">The leak</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
+{% block cta_title %}Cache the prompt, then pay less for what's left{% endblock %}
+{% block main %}
+{% set sn = bs['claude-sonnet-5-5'] %}
+<article class="post">
+<section class="band" id="top" data-toc="Intro"><div class="wrap">
+<p class="crumb"><a href="{{ base }}/blog/">Blog</a> › Token saving, part {{ post.part }}</p>
+<h1>{{ post.title }}</h1>
+<p class="byline">By {% if site.author.name %}{{ site.author.name }}{% else %}{{ site.brand }}{% endif %}, {{ post.date_human }}. Prices checked {{ checked_human }}.</p>
+<p class="lede">Every time mem0 saves a memory, it sends the model the same 8,400-token instruction prompt. OpenAI and Gemini cache that prompt on their own. Claude only caches when asked, and mem0 never asks, so Claude users pay full price for it on every save. One line per provider fixes it.</p>
+<p class="series">Part {{ post.part }} of a series on spending less per token. <a href="{{ base }}/blog/browser-use-cost-audit/">Part 3</a> audited browser-use, <a href="{{ base }}/blog/gpt-researcher-cost-audit/">part 2</a> GPT Researcher, and <a href="{{ base }}/blog/token-saving-basics/">part 1</a> explains caching if you're new to it.</p>
+</div></section>
+
+<section class="band tight" id="project" data-toc="The project"><div class="wrap">
+<h2>The project and how we checked it</h2>
+<p><a href="https://github.com/mem0ai/mem0">mem0</a> is a memory layer for AI apps. You hand it a conversation with <code>add()</code>, an LLM pulls out the facts worth keeping, and later <code>search()</code> brings back the ones that matter. Many agents and assistants plug it in, so a cost leak in mem0 shows up on a lot of other people's bills.</p>
+<p>We ran our free <a href="{{ base }}/skill/">LLM cost audit skill</a> on commit <code>cae3d8c</code> (27 November 2026), then read every flagged file and the whole <code>add()</code> pipeline by hand. We didn't run mem0; the numbers below are estimates, and we say what they rest on.</p>
+</div></section>
+
+<section class="band tight" id="good" data-toc="What it does well"><div class="wrap">
+<h2>What it already does well</h2>
+<ul>
+<li><b>One LLM call per save.</b> The current pipeline extracts new memories in a single call. Older versions made a second call to decide what to update.</li>
+<li><b>A cache-friendly prompt layout.</b> The big instruction prompt goes first as a fixed system message. Today's date, recent messages and custom instructions come after it, so they don't break the cached part.</li>
+<li><b>Batched embeddings</b> and duplicate memories dropped by hash before anything is written.</li>
+<li><b>An output limit</b> of 2,000 tokens by default. Our scanner flagged the calls for having no limit; that was wrong, because the limit is set in the shared config.</li>
+</ul>
+<p>So the structure is right. The leak is a missing switch, and it only matters on Claude.</p>
+</div></section>
+
+<section class="band tight" id="leak" data-toc="1. The leak"><div class="wrap">
+<h2>1. The extraction prompt is never cached on Claude</h2>
+<p>The system prompt for each save, <code>ADDITIVE_EXTRACTION_PROMPT</code>, is 33,653 characters: roughly 8,400 tokens. It is the same for every user and every save. That is exactly what prompt caching is for: after the first request, a cached copy is billed at a tenth of the input price.</p>
+<div class="scroll"><table>
+<thead><tr><th>How you run mem0</th><th>Prompt cached?</th></tr></thead>
+<tbody>
+<tr><td>OpenAI or Azure OpenAI</td><td>Yes, automatically</td></tr>
+<tr><td>Gemini</td><td>Yes, automatically</td></tr>
+<tr><td>Anthropic (<code>provider: anthropic</code>)</td><td>No</td></tr>
+<tr><td>Claude on Amazon Bedrock</td><td>No</td></tr>
+<tr><td>Claude through OpenRouter or LiteLLM</td><td>No</td></tr>
+</tbody></table></div>
+<p>Claude needs a <code>cache_control</code> marker on the part to cache (Bedrock calls it a <code>cachePoint</code>). None of mem0's LLM classes add one. The Anthropic class sends the system prompt as a plain string.</p>
+<div class="ex">
+<p class="ex-h">The fix in mem0 (llms/anthropic.py, generate_response)</p>
+<pre><code>params.update({
+    "model": self.config.model,
+    "messages": filtered_messages,
+    "system": [{"type": "text", "text": system_message,
+                "cache_control": {"type": "ephemeral"}}],
+})</code></pre>
+</div>
+<p>Because the prompt is identical for every user, one warm cache serves all your traffic. The cache lasts five minutes after its last use, so any app saving memories more often than that keeps it warm, and the one-off cost of writing it is negligible.</p>
+</div></section>
+
+<section class="band tight" id="model" data-toc="2. The default model"><div class="wrap">
+<h2>2. The default Claude model is a generation behind</h2>
+<p>If you don't pick a model, mem0 uses Claude Sonnet 4.6, at $3 input and $15 output per million tokens. Sonnet 5.5 is $2 and $10: a third cheaper and newer. On Bedrock the default is older still, Claude 3.5 Sonnet from June 2024. Set the model yourself:</p>
+<div class="ex">
+<p class="ex-h">Pick the model in your mem0 config</p>
+<pre><code>config = {"llm": {"provider": "anthropic",
+                  "config": {"model": "claude-sonnet-5-5"}}}</code></pre>
+</div>
+<p>Pulling facts out of a chat is a fairly simple job, so a smaller model may do it well too. Test that on your own conversations before switching, because missed memories cost more than tokens.</p>
+</div></section>
+
+<section class="band tight" id="worth" data-toc="What it's worth"><div class="wrap">
+<h2>What it's worth</h2>
+<p>Our estimate for an app making 100,000 <code>add()</code> calls a month on Claude, at Anthropic list prices:</p>
+<div class="scroll"><table>
+<thead><tr><th>Setup</th><th class="n">Per month</th></tr></thead>
+<tbody>
+<tr><td>Today: default Sonnet 4.6, no cache</td><td class="n">$3,450</td></tr>
+<tr><td>Sonnet 4.6 with the cache</td><td class="n">$1,182 <span class="save-tag">−66%</span></td></tr>
+<tr><td>Sonnet 5.5 with the cache</td><td class="n">$704 <span class="save-tag">−80%</span></td></tr>
+</tbody></table></div>
+<p class="small">How we got these numbers: about 10,000 input tokens per save (the 8,400-token prompt plus up to 10 recent messages and 10 existing memories, estimated at 1,600 tokens) and an assumed 300 output tokens. 84% of input read from cache. List prices on 26 November 2026: Sonnet 4.6 $3 input, $0.30 cached, $15 output per million; Sonnet 5.5 $2, $0.10 and $10. Token counts are character estimates; Claude's tokenizer may count more. The dollars scale with your volume, so trust the percentages more.</p>
+</div></section>
+
+<section class="band tight" id="rerank" data-toc="3. The reranker"><div class="wrap">
+<h2>3. A smaller one: the LLM reranker calls the model once per result</h2>
+<p>mem0 can rerank search results with an LLM. It's off unless you configure it, but when it's on it makes one model call per result, one after another. With the default of 20 results, that's up to 20 calls for every search, which adds latency as well as cost. Scoring all results in one call, or using one of mem0's non-LLM rerankers, avoids both.</p>
+</div></section>
+
+<section class="band tight" id="gateway" data-toc="Where to buy"><div class="wrap">
+<h2>Where the tokens are bought</h2>
+<p>Caching is the big lever here; the price per token is the second. SayGM lists Claude Sonnet 5.5 at {{ sn.f.sg_in }} input and {{ sn.f.sg_out }} output per million tokens, against {{ sn.f.list_in }} and {{ sn.f.list_out }} from Anthropic, about {{ sn.save }}% less than OpenRouter. mem0's Anthropic class accepts <code>anthropic_base_url</code>, so pointing it at SayGM's Anthropic-compatible endpoint takes one config line. The usual caveat applies: on Claude the model maker still processes the prompt whichever gateway you use.</p>
+<p class="small">Disclosure: we earn a reward if you sign up to SayGM through our links. Your price is the same.</p>
+</div></section>
+
+<section class="band tight" id="summary" data-toc="Summary"><div class="wrap">
+<h2>Summary</h2>
+<div class="scroll"><table>
+<thead><tr><th>#</th><th>Finding</th><th>Fix</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>8,400-token extraction prompt never cached on Claude (Anthropic, Bedrock, OpenRouter, LiteLLM)</td><td>Add <code>cache_control</code> (or a Bedrock <code>cachePoint</code>) to the system prompt</td><td>One line per provider</td></tr>
+<tr><td>2</td><td>Default Claude model is Sonnet 4.6; Bedrock default is Claude 3.5 Sonnet</td><td>Set <code>model</code> in your config</td><td>One line</td></tr>
+<tr><td>3</td><td>Optional LLM reranker: one call per result, up to 20 per search</td><td>Score in one call, or use a non-LLM reranker</td><td>Moderate</td></tr>
+</tbody></table></div>
+<h3 style="margin-top:28px">Check your own app for the same thing</h3>
+<ul>
+<li>Look for a large prompt that never changes between requests. If you run Claude, it should carry a cache marker.</li>
+<li>Check <code>cache_read_input_tokens</code> in your Anthropic usage. Zero on a fixed prompt means you're paying full price for it.</li>
+<li>If a library picks the model for you, check which one and what it costs today.</li>
+</ul>
+<p>Or let an agent do it: <a href="{{ base }}/skill/">the LLM cost audit skill</a> is free and runs locally.</p>
+<p class="small">Sources: <a href="https://github.com/mem0ai/mem0">mem0 on GitHub</a> (commit cae3d8c), <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Anthropic prompt caching docs</a>, <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic pricing</a>, <a href="https://saygm.com/models">SayGM prices</a>. We didn't run mem0; token counts are estimates.</p>
+</div></section>
+<section class="band tight" id="related" data-toc="Related"><div class="wrap">
+<h2>Related</h2>
+<ul>
+{% for p in posts if p.slug != post.slug %}<li><a href="{{ base }}/blog/{{ p.slug }}/">{{ p.title }}</a></li>
+{% endfor %}<li><a href="{{ base }}/models/claude-sonnet-5-5/">Claude Sonnet 5.5 prices: SayGM vs OpenRouter</a></li>
+<li><a href="{{ base }}/skill/">Free LLM cost audit skill</a></li>
+</ul>
+</div></section>
+</article>
+{% endblock %}
