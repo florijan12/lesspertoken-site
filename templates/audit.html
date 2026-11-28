@@ -1,0 +1,77 @@
+{% extends "_base.html" %}
+{% block nav %}<a href="{{ base }}/">Prices</a><a href="#request">Request</a><a href="#examples">Examples</a><a href="{{ base }}/blog/">Blog</a><a href="{{ base }}/skill/">Free skill</a>{% endblock %}
+{% block main %}
+<article class="post">
+<section class="band" id="top" data-toc="Free audit"><div class="wrap">
+<h1>Get a free LLM cost audit of your repo</h1>
+<p class="lede">Send us a public GitHub repo that calls Claude, GPT, Gemini or open models. We read its LLM calls by hand, find the tokens you pay for without needing them, and reply with the fixes and what each one saves per month.</p>
+<div class="hi-line">
+<a class="btn" href="#request">Request an audit</a>
+<span class="small">Free for public repos. No signup beyond a GitHub account.</span>
+</div>
+</div></section>
+
+<section class="band tight" id="get" data-toc="What you get"><div class="wrap">
+<h2>What you get</h2>
+<ul>
+<li><b>Findings ordered by money saved</b>, each with the file and line it comes from.</li>
+<li><b>A before-and-after fix</b> for each one, usually a few lines.</li>
+<li><b>A monthly estimate</b> from your own volumes, or a percentage if you'd rather not share them.</li>
+<li><b>What you already do well</b>, so you know what not to touch.</li>
+</ul>
+<p>The usual suspects: prompt caching that's off or quietly broken, the biggest model doing easy work, no output limit, history that grows without bound, and nightly jobs that could use the batch API at half price.</p>
+</div></section>
+
+<section class="band tight" id="request" data-toc="Request"><div class="wrap">
+<h2>Request an audit</h2>
+<form id="audit-form" class="calc" style="grid-template-columns:minmax(0,1fr)" novalidate>
+<div class="field"><label for="a-repo">GitHub repo</label>
+<input id="a-repo" type="url" required placeholder="https://github.com/owner/repo"></div>
+<div class="field"><label for="a-stack">Models and provider you use</label>
+<input id="a-stack" type="text" placeholder="e.g. Claude Sonnet 5.5 through Bedrock"></div>
+<div class="field"><label for="a-spend">Rough monthly LLM spend</label>
+<select id="a-spend"><option>Not sure</option><option>Under $100</option><option>$100 to $1,000</option><option>$1,000 to $10,000</option><option>Over $10,000</option></select></div>
+<div class="field"><label for="a-notes">Anything we should look at first? (optional)</label>
+<textarea id="a-notes" rows="3"></textarea></div>
+<div><button class="btn" type="submit">Open the request on GitHub</button>
+<p class="note" id="a-msg" role="status"></p>
+<p class="small">This opens a prefilled issue on our <a href="https://github.com/florijan12/llm-cost-audit">llm-cost-audit</a> repo for you to check and submit. Issues there are public, so leave out anything private.</p></div>
+</form>
+</div></section>
+
+<section class="band tight" id="how" data-toc="How it works"><div class="wrap">
+<h2>How it works</h2>
+<ol class="steps">
+<li><b>You open the request</b> on GitHub with the form above.</li>
+<li><b>We run our scanner</b> on the repo, then read every flagged call ourselves, because a scanner on its own gets things wrong.</li>
+<li><b>We reply on the issue</b> with the report. We do these by hand, so it can take a few days.</li>
+<li><b>Nothing about your project is published</b> unless you say yes. With your OK, we may write it up like the examples below.</li>
+</ol>
+<p>Private code? Run the same checks yourself with the <a href="{{ base }}/skill/">free LLM cost audit skill</a>. It runs on your machine and nothing leaves it.</p>
+</div></section>
+
+<section class="band tight" id="examples" data-toc="Examples"><div class="wrap">
+<h2>Audits we've published</h2>
+<ul class="audits">
+{% for p in posts %}<li><a href="{{ base }}/blog/{{ p.slug }}/"><b>{{ p.title }}</b></a><span>{{ p.og_stat }}, {{ p.date_human }}</span></li>
+{% endfor %}</ul>
+<p class="small">Reports may compare where you buy tokens, including SayGM. We earn a reward if you sign up to SayGM through our links; your price is the same.</p>
+</div></section>
+</article>
+<script>
+(function(){
+  var f=document.getElementById('audit-form'); if(!f) return;
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var repo=document.getElementById('a-repo').value.trim(), msg=document.getElementById('a-msg');
+    var m=repo.match(/^(?:https?:\/\/)?(?:www\.)?github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?(?:[#?].*)?$/i);
+    if(!m){msg.textContent='Enter a GitHub repo link, like https://github.com/owner/repo.';document.getElementById('a-repo').focus();return;}
+    msg.textContent='';
+    var p=new URLSearchParams({template:'audit-request.yml',title:'Audit request: '+m[1]+'/'+m[2],
+      repo_url:'https://github.com/'+m[1]+'/'+m[2], stack:document.getElementById('a-stack').value.trim(),
+      spend:document.getElementById('a-spend').value, notes:document.getElementById('a-notes').value.trim()});
+    window.open('https://github.com/florijan12/llm-cost-audit/issues/new?'+p.toString(),'_blank','noopener');
+  });
+})();
+</script>
+{% endblock %}
